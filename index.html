@@ -8,15 +8,10 @@
     :root {
       --bg: #0b1020;
       --card: #121a33;
-      --card2: #0f1730;
       --text: #eef2ff;
       --muted: #aab4d6;
-      --accent: #6ea8ff;
       --accent2: #7cffc4;
-      --danger: #ff7d7d;
       --border: rgba(255,255,255,.12);
-      --active: #ffd36e;
-      --active2: #8cf7c5;
     }
 
     * { box-sizing: border-box; }
@@ -124,9 +119,7 @@
       transition: transform .12s ease, filter .12s ease, background .12s ease;
     }
 
-    button:active {
-      transform: scale(.98);
-    }
+    button:active { transform: scale(.98); }
 
     button.secondary {
       background: linear-gradient(180deg, #2b355b, #1a2242);
@@ -134,13 +127,8 @@
       border: 1px solid var(--border);
     }
 
-    button.good {
-      background: linear-gradient(180deg, #58d9a1, #2aa66f);
-    }
-
-    button.warn {
-      background: linear-gradient(180deg, #ff9a7d, #ff6c6c);
-    }
+    button.good { background: linear-gradient(180deg, #58d9a1, #2aa66f); }
+    button.warn { background: linear-gradient(180deg, #ff9a7d, #ff6c6c); }
 
     button.active {
       box-shadow: 0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
@@ -161,6 +149,11 @@
     button.active.expr {
       background: linear-gradient(180deg, #ffbf6e, #ff8f3d);
       color: #231700;
+    }
+
+    button.active.text {
+      background: linear-gradient(180deg, #8fe0ff, #5cb5ff);
+      color: #062033;
     }
 
     button:disabled {
@@ -263,6 +256,7 @@
 
     let activeMode = 'auto';
     let activeExpression = '';
+    let textShown = false;
 
     const $ = (id) => document.getElementById(id);
     const expressionButtons = new Map();
@@ -284,6 +278,13 @@
       document.querySelectorAll('#expressionGrid button').forEach(btn => btn.disabled = !enabled);
     }
 
+    function updateTextButton() {
+      const btn = $('sendTextBtn');
+      btn.textContent = textShown ? 'Remove Text' : 'Show Text';
+      btn.classList.toggle('active', textShown);
+      btn.classList.toggle('text', textShown);
+    }
+
     function renderActiveState() {
       $('autoBtn').classList.toggle('active', activeMode === 'auto');
       $('autoBtn').classList.toggle('mode-auto', activeMode === 'auto');
@@ -296,6 +297,8 @@
         btn.classList.toggle('active', on);
         btn.classList.toggle('expr', on);
       }
+
+      updateTextButton();
     }
 
     async function writeText(characteristic, text) {
@@ -309,16 +312,35 @@
       await characteristic.writeValue(data);
     }
 
-    async function sendCommand(cmd, silent = false) {
+    async function clearTextMode() {
+      if (!textShown || !textChar) return;
+      try {
+        await writeText(textChar, 'CLEAR');
+      } catch (err) {
+        console.error(err);
+      }
+      textShown = false;
+      updateTextButton();
+    }
+
+    async function sendCommand(cmd) {
       if (!cmdChar) return;
       try {
+        await clearTextMode();
         await writeText(cmdChar, cmd);
-        if (!silent) {
+
+        if (cmd === 'AUTO') {
+          activeMode = 'auto';
+          activeExpression = '';
+        } else if (cmd === 'MANUAL') {
           activeMode = 'manual';
-          if (cmd !== 'AUTO' && cmd !== 'MANUAL') activeExpression = cmd;
-          if (cmd === 'AUTO') activeExpression = '';
-          renderActiveState();
+          activeExpression = '';
+        } else {
+          activeMode = 'manual';
+          activeExpression = cmd;
         }
+
+        renderActiveState();
       } catch (err) {
         console.error(err);
       }
@@ -326,11 +348,19 @@
 
     async function sendCustomText() {
       if (!textChar) return;
+
       const value = $('customText').value.trim();
+
+      if (textShown) {
+        await clearTextMode();
+        return;
+      }
+
       if (value.length < 1 || value.length > 7) return;
 
       try {
         await writeText(textChar, value);
+        textShown = true;
         activeMode = 'manual';
         activeExpression = '';
         renderActiveState();
@@ -362,9 +392,10 @@
 
         activeMode = 'auto';
         activeExpression = '';
+        textShown = false;
         renderActiveState();
 
-        await sendCommand('AUTO', true);
+        await sendCommand('AUTO');
       } catch (err) {
         console.error(err);
         setButtons(false);
@@ -377,6 +408,7 @@
       setConnectionState(false);
       activeMode = 'auto';
       activeExpression = '';
+      textShown = false;
       renderActiveState();
     }
 
@@ -390,17 +422,11 @@
     $('disconnectBtn').addEventListener('click', disconnect);
 
     $('autoBtn').addEventListener('click', async () => {
-      activeMode = 'auto';
-      activeExpression = '';
-      renderActiveState();
-      await sendCommand('AUTO', true);
+      await sendCommand('AUTO');
     });
 
     $('manualBtn').addEventListener('click', async () => {
-      activeMode = 'manual';
-      activeExpression = '';
-      renderActiveState();
-      await sendCommand('MANUAL', true);
+      await sendCommand('MANUAL');
     });
 
     $('sendTextBtn').addEventListener('click', sendCustomText);
@@ -414,10 +440,7 @@
       btn.textContent = label;
       btn.disabled = true;
       btn.addEventListener('click', async () => {
-        activeMode = 'manual';
-        activeExpression = cmd;
-        renderActiveState();
-        await sendCommand(cmd, true);
+        await sendCommand(cmd);
       });
       expressionButtons.set(cmd, btn);
       grid.appendChild(btn);
