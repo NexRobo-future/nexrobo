@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NexRobo Bluetooth Controller</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121a33;
+      --card2: #0f1730;
+      --text: #eef2ff;
+      --muted: #aab4d6;
+      --accent: #6ea8ff;
+      --accent2: #7cffc4;
+      --danger: #ff7d7d;
+      --border: rgba(255,255,255,.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, #182447 0%, var(--bg) 60%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .hero {
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      margin-bottom: 14px;
+    }
+    h1 { margin: 0 0 6px; font-size: 1.5rem; }
+    p { margin: 6px 0; color: var(--muted); }
+    .row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      margin: 12px 0;
+    }
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: rgba(18,26,51,.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    label { display: block; font-size: .92rem; color: var(--muted); margin-bottom: 6px; }
+    input, button {
+      width: 100%;
+      border: 0;
+      outline: none;
+      border-radius: 14px;
+      padding: 14px 14px;
+      font-size: 1rem;
+    }
+    input {
+      background: #0a1126;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    button {
+      background: linear-gradient(180deg, #74a7ff, #4d7dff);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(77,125,255,.25);
+    }
+    button.secondary {
+      background: linear-gradient(180deg, #2b355b, #1a2242);
+      box-shadow: none;
+      border: 1px solid var(--border);
+    }
+    button.good { background: linear-gradient(180deg, #58d9a1, #2aa66f); }
+    button.warn { background: linear-gradient(180deg, #ff9a7d, #ff6c6c); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .status {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      word-break: break-word;
+    }
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      margin-top: 12px;
+    }
+    .group-title {
+      margin: 16px 0 8px;
+      font-size: 1rem;
+      color: var(--accent2);
+      font-weight: 700;
+    }
+    .small {
+      font-size: .88rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>NexRobo Bluetooth Controller</h1>
+      <p>Connect from Chrome on Android, unlock with the password, then send face commands.</p>
+      <p class="small">Use HTTPS. Web Bluetooth needs a secure context in supported brows2>
+      <div class="card">
+        <label for="password">Password</label>
+        <input id="password" type="text" value="nexrobo" />
+      </div>
+      <div class="card">
+        <label>Bluetooth</label>
+        <button id="connectBtn">Connect</button>
+        <div style="height:10px"></div>
+        <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="group-title">Mode</div>
+      <div class="grid">
+        <button id="autoBtn" class="good" disabled>AUTO</button>
+        <button id="manualBtn" class="secondary" disabled>MANUAL</button>
+      </div>
+
+      <div class="group-title">Expressions</div>
+      <div id="expressionGrid" class="grid"></div>
+
+      <div id="status" class="status">Not connected.</div>
+    </div>
+  </div>
+
+  <script>
+    const SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
+    const PASS_UUID    = 'abcd1234-1a2b-3c4d-5e6f-1234567890ab';
+    const CMD_UUID     = 'dcba4321-4b3c-2d1e-f0e9-0987654321ff';
+
+    const EXPRESSIONS = [
+      ['SAD', 'Sadness'],
+      ['ANGER', 'Anger'],
+      ['HAPPY', 'Happiness'],
+      ['PLEADING', 'Pleading'],
+      ['VULNERABLE', 'Vulnerable'],
+      ['DESPAIR', 'Despair'],
+      ['SURPRISE', 'Surprise'],
+      ['DISGUST', 'Disgust'],
+      ['FEAR', 'Fear'],
+      ['GUILTY', 'Guilty'],
+      ['DISAPPOINTED', 'Disappointed'],
+      ['EMBARRASSED', 'Embarrassed'],
+      ['HORRIFIED', 'Horrified'],
+      ['SKEPTICAL', 'Skeptical'],
+      ['ANNOYED', 'Annoyed'],
+      ['CONFUSED', 'Confused'],
+      ['AMAZED', 'Amazed'],
+      ['EXCITED', 'Excited'],
+      ['FURIOUS', 'Furious'],
+      ['SUSPICIOUS', 'Suspicious'],
+      ['REJECTED', 'Rejected'],
+      ['BORED', 'Bored'],
+      ['TIRED', 'Tired'],
+      ['ASLEEP', 'Asleep']
+    ];
+
+    let device = null;
+    let server = null;
+    let service = null;
+    let passChar = null;
+    let cmdChar = null;
+
+    const $ = (id) => document.getElementById(id);
+    const status = $('status');
+
+    function setStatus(msg) {
+      status.textContent = msg;
+    }
+
+    async function writeText(characteristic, text) {
+      const data = new TextEncoder().encode(text);
+      try {
+        if (characteristic.writeValueWithoutResponse) {
+          await characteristic.writeValueWithoutResponse(data);
+          return;
+        }
+      } catch (e) {}
+      await characteristic.writeValue(data);
+    }
+
+    function setButtons(enabled) {
+      $('disconnectBtn').disabled = !enabled;
+      $('autoBtn').disabled = !enabled;
+      $('manualBtn').disabled = !enabled;
+      document.querySelectorAll('#expressionGrid button').forEach(btn => btn.disabled = !enabled);
+    }
+
+    async function connect() {
+      try {
+        setStatus('Requesting device...');
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [SERVICE_UUID] }],
+          optionalServices: [SERVICE_UUID]
+        });
+
+        device.addEventListener('gattserverdisconnected', onDisconnected);
+
+        setStatus('Connecting...');
+        server = await device.gatt.connect();
+        service = await server.getPrimaryService(SERVICE_UUID);
+        passChar = await service.getCharacteristic(PASS_UUID);
+        cmdChar = await service.getCharacteristic(CMD_UUID);
+
+        const pass = $('password').value.trim() || 'nexrobo';
+        await writeText(passChar, pass);
+
+        setButtons(true);
+        setStatus(`Connected to ${device.name || 'NexRobo'}. Password sent.`);
+      } catch (err) {
+        console.error(err);
+        setStatus('Connection failed: ' + err.message);
+        setButtons(false);
+      }
+    }
+
+    function onDisconnected() {
+      setButtons(false);
+      setStatus('Disconnected.');
+    }
+
+    async function disconnect() {
+      if (device && device.gatt.connected) {
+        device.gatt.disconnect();
+      }
+    }
+
+    async function sendCommand(cmd) {
+      if (!cmdChar) return;
+      try {
+        await writeText(cmdChar, cmd);
+        setStatus('Sent: ' + cmd);
+      } catch (err) {
+        console.error(err);
+        setStatus('Send failed: ' + err.message);
+      }
+    }
+
+    $('connectBtn').addEventListener('click', connect);
+    $('disconnectBtn').addEventListener('click', disconnect);
+    $('autoBtn').addEventListener('click', () => sendCommand('AUTO'));
+    $('manualBtn').addEventListener('click', () => sendCommand('MANUAL'));
+
+    const grid = $('expressionGrid');
+    EXPRESSIONS.forEach(([cmd, label]) => {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.disabled = true;
+      btn.addEventListener('click', () => sendCommand(cmd));
+      grid.appendChild(btn);
+    });
+
+    setButtons(false);
+  </script>
+</body>
+</html>
