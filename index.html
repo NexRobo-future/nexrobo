@@ -15,19 +15,25 @@
       --accent2: #7cffc4;
       --danger: #ff7d7d;
       --border: rgba(255,255,255,.12);
+      --active: #ffd36e;
+      --active2: #8cf7c5;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: radial-gradient(circle at top, #182447 0%, var(--bg) 60%);
       color: var(--text);
     }
+
     .wrap {
       max-width: 980px;
       margin: 0 auto;
       padding: 16px;
     }
+
     .hero {
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
       border: 1px solid var(--border);
@@ -36,24 +42,35 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       margin-bottom: 14px;
     }
+
     h1 { margin: 0 0 6px; font-size: 1.5rem; }
     p { margin: 6px 0; color: var(--muted); }
+
     .row {
       display: grid;
       gap: 10px;
       grid-template-columns: 1fr 1fr;
       margin: 12px 0;
     }
+
     @media (max-width: 640px) {
       .row { grid-template-columns: 1fr; }
     }
+
     .card {
       background: rgba(18,26,51,.92);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 14px;
     }
-    label { display: block; font-size: .92rem; color: var(--muted); margin-bottom: 6px; }
+
+    label {
+      display: block;
+      font-size: .92rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
     input, button {
       width: 100%;
       border: 0;
@@ -62,26 +79,66 @@
       padding: 14px 14px;
       font-size: 1rem;
     }
+
     input {
       background: #0a1126;
       color: var(--text);
       border: 1px solid var(--border);
     }
+
     button {
       background: linear-gradient(180deg, #74a7ff, #4d7dff);
       color: white;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(77,125,255,.25);
+      transition: transform .12s ease, filter .12s ease, background .12s ease;
     }
+
+    button:active {
+      transform: scale(.98);
+    }
+
     button.secondary {
       background: linear-gradient(180deg, #2b355b, #1a2242);
       box-shadow: none;
       border: 1px solid var(--border);
     }
-    button.good { background: linear-gradient(180deg, #58d9a1, #2aa66f); }
-    button.warn { background: linear-gradient(180deg, #ff9a7d, #ff6c6c); }
-    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    button.good {
+      background: linear-gradient(180deg, #58d9a1, #2aa66f);
+    }
+
+    button.warn {
+      background: linear-gradient(180deg, #ff9a7d, #ff6c6c);
+    }
+
+    button.active {
+      box-shadow: 0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
+      filter: brightness(1.08);
+      border: 1px solid rgba(255,255,255,.18);
+    }
+
+    button.active.mode-auto {
+      background: linear-gradient(180deg, #7cffc4, #2fbf7e);
+      color: #062013;
+    }
+
+    button.active.mode-manual {
+      background: linear-gradient(180deg, #ffd36e, #ffb93d);
+      color: #231700;
+    }
+
+    button.active.expr {
+      background: linear-gradient(180deg, #ffbf6e, #ff8f3d);
+      color: #231700;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
     .status {
       margin-top: 10px;
       padding: 12px;
@@ -90,21 +147,31 @@
       border: 1px solid var(--border);
       color: var(--muted);
       word-break: break-word;
+      min-height: 46px;
     }
+
     .grid {
       display: grid;
       gap: 10px;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       margin-top: 12px;
     }
+
     .group-title {
       margin: 16px 0 8px;
       font-size: 1rem;
       color: var(--accent2);
       font-weight: 700;
     }
+
     .small {
       font-size: .88rem;
+      color: var(--muted);
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: .85rem;
       color: var(--muted);
     }
   </style>
@@ -113,11 +180,14 @@
   <div class="wrap">
     <div class="hero">
       <h1>NexRobo Bluetooth Controller</h1>
-      <p>Connect from Chrome on Android, unlock with the password, then send face commands.</p>
-      <p class="small">Use HTTPS. Web Bluetooth needs a secure context in supported brows2>
+      <p>Connect from Chrome on Android, unlock with the password, then send face commands or custom text.</p>
+      <p class="small">Web Bluetooth works in supported browsers over HTTPS.</p>
+    </div>
+
+    <div class="row">
       <div class="card">
         <label for="password">Password</label>
-        <input id="password" type="text" value="nexrobo" />
+        <input id="password" type="text" value="nexrobo" autocomplete="off" />
       </div>
       <div class="card">
         <label>Bluetooth</label>
@@ -137,6 +207,15 @@
       <div class="group-title">Expressions</div>
       <div id="expressionGrid" class="grid"></div>
 
+      <div class="group-title">Custom Text</div>
+      <div class="card" style="padding: 0; background: transparent; border: 0;">
+        <label for="customText">Text for OLED (7–20 characters)</label>
+        <input id="customText" type="text" maxlength="20" minlength="7" placeholder="Type a short message" disabled />
+        <div class="hint">Example: NexRobo Robot</div>
+        <div style="height:10px"></div>
+        <button id="sendTextBtn" class="warn" disabled>Show Text</button>
+      </div>
+
       <div id="status" class="status">Not connected.</div>
     </div>
   </div>
@@ -145,6 +224,7 @@
     const SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
     const PASS_UUID    = 'abcd1234-1a2b-3c4d-5e6f-1234567890ab';
     const CMD_UUID     = 'dcba4321-4b3c-2d1e-f0e9-0987654321ff';
+    const TEXT_UUID    = 'effe1234-4b3c-2d1e-f0e9-0987654321aa';
 
     const EXPRESSIONS = [
       ['SAD', 'Sadness'],
@@ -178,12 +258,41 @@
     let service = null;
     let passChar = null;
     let cmdChar = null;
+    let textChar = null;
+
+    let activeMode = 'auto';
+    let activeExpression = '';
 
     const $ = (id) => document.getElementById(id);
     const status = $('status');
 
+    const expressionButtons = new Map();
+
     function setStatus(msg) {
       status.textContent = msg;
+    }
+
+    function setButtons(enabled) {
+      $('disconnectBtn').disabled = !enabled;
+      $('autoBtn').disabled = !enabled;
+      $('manualBtn').disabled = !enabled;
+      $('sendTextBtn').disabled = !enabled;
+      $('password').disabled = !enabled;
+      $('customText').disabled = !enabled;
+      document.querySelectorAll('#expressionGrid button').forEach(btn => btn.disabled = !enabled);
+    }
+
+    function renderActiveState() {
+      $('autoBtn').classList.toggle('active', activeMode === 'auto');
+      $('autoBtn').classList.toggle('mode-auto', activeMode === 'auto');
+
+      $('manualBtn').classList.toggle('active', activeMode === 'manual');
+      $('manualBtn').classList.toggle('mode-manual', activeMode === 'manual');
+
+      for (const [cmd, btn] of expressionButtons.entries()) {
+        btn.classList.toggle('active', activeExpression === cmd);
+        btn.classList.toggle('expr', activeExpression === cmd);
+      }
     }
 
     async function writeText(characteristic, text) {
@@ -197,11 +306,35 @@
       await characteristic.writeValue(data);
     }
 
-    function setButtons(enabled) {
-      $('disconnectBtn').disabled = !enabled;
-      $('autoBtn').disabled = !enabled;
-      $('manualBtn').disabled = !enabled;
-      document.querySelectorAll('#expressionGrid button').forEach(btn => btn.disabled = !enabled);
+    async function sendCommand(cmd, silent = false) {
+      if (!cmdChar) return;
+      try {
+        await writeText(cmdChar, cmd);
+        if (!silent) setStatus('Sent: ' + cmd);
+      } catch (err) {
+        console.error(err);
+        setStatus('Send failed: ' + err.message);
+      }
+    }
+
+    async function sendCustomText() {
+      if (!textChar) return;
+
+      const value = $('customText').value.trim();
+      if (value.length < 7) {
+        setStatus('Custom text must be at least 7 characters.');
+        return;
+      }
+
+      try {
+        await writeText(textChar, value);
+        activeMode = 'manual';
+        renderActiveState();
+        setStatus('Custom text sent: ' + value);
+      } catch (err) {
+        console.error(err);
+        setStatus('Text send failed: ' + err.message);
+      }
     }
 
     async function connect() {
@@ -219,9 +352,15 @@
         service = await server.getPrimaryService(SERVICE_UUID);
         passChar = await service.getCharacteristic(PASS_UUID);
         cmdChar = await service.getCharacteristic(CMD_UUID);
+        textChar = await service.getCharacteristic(TEXT_UUID);
 
         const pass = $('password').value.trim() || 'nexrobo';
         await writeText(passChar, pass);
+
+        await sendCommand('AUTO', true);
+        activeMode = 'auto';
+        activeExpression = '';
+        renderActiveState();
 
         setButtons(true);
         setStatus(`Connected to ${device.name || 'NexRobo'}. Password sent.`);
@@ -234,41 +373,58 @@
 
     function onDisconnected() {
       setButtons(false);
+      activeMode = 'auto';
+      activeExpression = '';
+      renderActiveState();
       setStatus('Disconnected.');
     }
 
-    async function disconnect() {
+    function disconnect() {
       if (device && device.gatt.connected) {
         device.gatt.disconnect();
       }
     }
 
-    async function sendCommand(cmd) {
-      if (!cmdChar) return;
-      try {
-        await writeText(cmdChar, cmd);
-        setStatus('Sent: ' + cmd);
-      } catch (err) {
-        console.error(err);
-        setStatus('Send failed: ' + err.message);
-      }
-    }
-
     $('connectBtn').addEventListener('click', connect);
     $('disconnectBtn').addEventListener('click', disconnect);
-    $('autoBtn').addEventListener('click', () => sendCommand('AUTO'));
-    $('manualBtn').addEventListener('click', () => sendCommand('MANUAL'));
+
+    $('autoBtn').addEventListener('click', async () => {
+      activeMode = 'auto';
+      activeExpression = '';
+      renderActiveState();
+      await sendCommand('AUTO');
+    });
+
+    $('manualBtn').addEventListener('click', async () => {
+      activeMode = 'manual';
+      activeExpression = '';
+      renderActiveState();
+      await sendCommand('MANUAL');
+    });
+
+    $('sendTextBtn').addEventListener('click', sendCustomText);
+
+    $('customText').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendCustomText();
+    });
 
     const grid = $('expressionGrid');
     EXPRESSIONS.forEach(([cmd, label]) => {
       const btn = document.createElement('button');
       btn.textContent = label;
       btn.disabled = true;
-      btn.addEventListener('click', () => sendCommand(cmd));
+      btn.addEventListener('click', async () => {
+        activeMode = 'manual';
+        activeExpression = cmd;
+        renderActiveState();
+        await sendCommand(cmd);
+      });
+      expressionButtons.set(cmd, btn);
       grid.appendChild(btn);
     });
 
     setButtons(false);
+    renderActiveState();
   </script>
 </body>
 </html>
