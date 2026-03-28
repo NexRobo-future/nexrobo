@@ -5,276 +5,413 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NexRobo Bluetooth Controller</title>
   <style>
-    :root{
-      --bg:#0b1020;
-      --card:#121a33;
-      --text:#eef2ff;
-      --muted:#aab4d6;
-      --border:rgba(255,255,255,.12);
-      --accent:#6ea8ff;
-      --accent2:#7cffc4;
-      --danger:#ff7d7d;
-      --good:#58d9a1;
+    :root {
+      --bg: #0b1020;
+      --card: #121a33;
+      --text: #eef2ff;
+      --muted: #aab4d6;
+      --accent2: #7cffc4;
+      --border: rgba(255,255,255,.12);
     }
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:radial-gradient(circle at top,#182447 0%,var(--bg) 60%);
-      color:var(--text);
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, #182447 0%, var(--bg) 60%);
+      color: var(--text);
     }
 
-    .wrap{max-width:980px;margin:0 auto;padding:16px}
-    .hero{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
-      flex-wrap:wrap;
-    }
-    h1{margin:0;font-size:1.45rem}
-    .pill{
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.06);
-      color:var(--muted);
-      min-width:120px;
-      text-align:center;
-      font-size:.92rem;
-      font-weight:700;
-    }
-    .pill.connected{
-      background:linear-gradient(180deg,#8cf7c5,#32c887);
-      color:#072012;
-    }
-    .pill.disconnected{
-      background:linear-gradient(180deg,#ffb0b0,#ff7d7d);
-      color:#2a1010;
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
     }
 
-    .row{
-      display:grid;
-      gap:10px;
-      grid-template-columns:1fr 1fr;
-      margin-bottom:12px;
-    }
-    @media (max-width: 640px){ .row{grid-template-columns:1fr} }
-
-    .card{
-      background:rgba(18,26,51,.92);
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:14px;
-    }
-
-    label{
-      display:block;
-      font-size:.92rem;
-      color:var(--muted);
-      margin-bottom:6px;
+    .hero {
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    input,button{
-      width:100%;
-      border:0;
-      outline:none;
-      border-radius:14px;
-      padding:14px 14px;
-      font-size:1rem;
+    h1 { margin: 0; font-size: 1.5rem; }
+
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: .92rem;
+      min-width: 120px;
+      text-align: center;
     }
 
-    input{
-      background:#0a1126;
-      color:var(--text);
-      border:1px solid var(--border);
+    .pill.connected {
+      color: #071b12;
+      background: linear-gradient(180deg, #8cf7c5, #32c887);
+      border-color: rgba(255,255,255,.15);
+      font-weight: 700;
     }
 
-    button{
-      background:linear-gradient(180deg,#74a7ff,#4d7dff);
-      color:white;
-      font-weight:700;
-      cursor:pointer;
-      transition:transform .12s ease, filter .12s ease, background .12s ease;
-      box-shadow:0 8px 20px rgba(77,125,255,.22);
+    .pill.disconnected {
+      color: #2c1010;
+      background: linear-gradient(180deg, #ffb0b0, #ff7d7d);
+      border-color: rgba(255,255,255,.15);
+      font-weight: 700;
     }
 
-    button:active{transform:scale(.98)}
-    button:disabled{opacity:.5;cursor:not-allowed}
-
-    button.secondary{
-      background:linear-gradient(180deg,#2b355b,#1a2242);
-      box-shadow:none;
-      border:1px solid var(--border);
+    .row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      margin: 12px 0;
     }
 
-    button.good{background:linear-gradient(180deg,#58d9a1,#2aa66f)}
-    button.warn{background:linear-gradient(180deg,#ff9a7d,#ff6c6c)}
-
-    button.active{
-      box-shadow:0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
-      filter:brightness(1.08);
-      border:1px solid rgba(255,255,255,.18);
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; }
     }
 
-    button.active.mode-auto{
-      background:linear-gradient(180deg,#7cffc4,#2fbf7e);
-      color:#062013;
+    .card {
+      background: rgba(18,26,51,.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
     }
 
-    button.active.mode-manual{
-      background:linear-gradient(180deg,#ffd36e,#ffb93d);
-      color:#231700;
+    label {
+      display: block;
+      font-size: .92rem;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
 
-    button.active.expr{
-      background:linear-gradient(180deg,#ffbf6e,#ff8f3d);
-      color:#231700;
+    input, button {
+      width: 100%;
+      border: 0;
+      outline: none;
+      border-radius: 14px;
+      padding: 14px 14px;
+      font-size: 1rem;
     }
 
-    button.active.text{
-      background:linear-gradient(180deg,#8fe0ff,#5cb5ff);
-      color:#062033;
+    input {
+      background: #0a1126;
+      color: var(--text);
+      border: 1px solid var(--border);
     }
 
-    .grid{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-      margin-top:12px;
+    button {
+      background: linear-gradient(180deg, #74a7ff, #4d7dff);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(77,125,255,.25);
+      transition: transform .12s ease, filter .12s ease, background .12s ease;
     }
 
-    .group-title{
-      margin:16px 0 8px;
-      font-size:1rem;
-      color:var(--accent2);
-      font-weight:700;
+    button:active { transform: scale(.98); }
+
+    button.secondary {
+      background: linear-gradient(180deg, #2b355b, #1a2242);
+      box-shadow: none;
+      border: 1px solid var(--border);
     }
 
-    /* Game overlay screens */
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(5,8,18,.92);
-      backdrop-filter:blur(10px);
-      display:none;
-      z-index:50;
-      padding:14px;
-    }
-    .overlay.show{display:block}
+    button.good { background: linear-gradient(180deg, #58d9a1, #2aa66f); }
+    button.warn { background: linear-gradient(180deg, #ff9a7d, #ff6c6c); }
 
-    .screen{
-      max-width:920px;
-      margin:0 auto;
-      height:100%;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
+    button.active {
+      box-shadow: 0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
+      filter: brightness(1.08);
+      border: 1px solid rgba(255,255,255,.18);
     }
 
-    .screen-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
+    button.active.mode-auto {
+      background: linear-gradient(180deg, #7cffc4, #2fbf7e);
+      color: #062013;
     }
 
-    .screen-title{
-      font-size:1.35rem;
-      font-weight:800;
-      margin:0;
+    button.active.mode-manual {
+      background: linear-gradient(180deg, #ffd36e, #ffb93d);
+      color: #231700;
     }
 
-    .screen-sub{
-      color:var(--muted);
-      margin:0;
-      font-size:.92rem;
+    button.active.expr {
+      background: linear-gradient(180deg, #ffbf6e, #ff8f3d);
+      color: #231700;
     }
 
-    .top-actions{
-      display:flex;
-      gap:10px;
-      width:auto;
-      min-width:240px;
-    }
-    .top-actions button{flex:1}
-
-    .center-box{
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    button.active.text {
+      background: linear-gradient(180deg, #8fe0ff, #5cb5ff);
+      color: #062033;
     }
 
-    .big-stack{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      max-width:340px;
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
     }
 
-    .big-arrow{
-      width:160px;
-      height:160px;
-      border-radius:26px;
-      background:#f4f4f4;
-      color:#111;
-      border:6px solid #111;
-      box-shadow:none;
-      font-size:4.5rem;
-      line-height:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:0;
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      margin-top: 12px;
     }
 
-    .big-arrow:active{
-      transform:scale(.98);
-      filter:brightness(.95);
+    .group-title {
+      margin: 16px 0 8px;
+      font-size: 1rem;
+      color: var(--accent2);
+      font-weight: 700;
     }
 
-    .game-menu{
-      display:grid;
-      gap:12px;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      width:100%;
-      margin-top:6px;
+    /* ─── Game Mode Button ─── */
+    button.game-mode-btn {
+      background: linear-gradient(135deg, #a855f7, #6d28d9);
+      box-shadow: 0 8px 24px rgba(109,40,217,.35);
+      font-size: 1.05rem;
+      letter-spacing: .02em;
+    }
+    button.game-mode-btn:hover { filter: brightness(1.12); }
+
+    /* ─── Game Panel (fullscreen overlay) ─── */
+    #gamePanel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: radial-gradient(ellipse at 50% 0%, #1e0a3c 0%, #080c1a 70%);
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0;
+      overflow: hidden;
     }
 
-    .game-card{
-      min-height:120px;
-      padding:18px 14px;
-      font-size:1.05rem;
-      border-radius:20px;
-      background:linear-gradient(180deg,#24315e,#1a2242);
-      border:1px solid var(--border);
-      box-shadow:0 10px 20px rgba(0,0,0,.15);
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:flex-start;
-      gap:8px;
-      text-align:left;
-    }
-    .game-card .mini{
-      font-size:.88rem;
-      color:var(--muted);
-      font-weight:500;
-    }
-    .game-card.active{
-      background:linear-gradient(180deg,#ffbf6e,#ff8f3d);
-      color:#231700;
-    }
-    .game-card.active .mini{color:#3b2400}
+    #gamePanel.open { display: flex; }
 
-    .hidden{display:none}
+    /* scanline texture */
+    #gamePanel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,.018) 2px,
+        rgba(255,255,255,.018) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .gp-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 520px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: 100dvh;
+    }
+
+    .gp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .gp-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      background: linear-gradient(90deg, #c084fc, #818cf8, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #closePanelBtn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.08);
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+      padding: 0;
+      box-shadow: none;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+
+    #closePanelBtn:hover { background: rgba(255,255,255,.16); }
+
+    /* ─── Game Selection Screen ─── */
+    #gameSelectScreen {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .game-pick-label {
+      font-size: .88rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 4px;
+    }
+
+    .game-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 20px;
+      padding: 22px 20px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, transform .1s;
+      width: 100%;
+      text-align: left;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .game-card:hover {
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.22);
+      transform: translateY(-2px);
+    }
+
+    .game-card:active { transform: scale(.98); }
+
+    .game-card .gc-icon {
+      font-size: 2.4rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .game-card .gc-info { flex: 1; }
+
+    .game-card .gc-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .game-card .gc-desc {
+      font-size: .84rem;
+      color: #94a3b8;
+    }
+
+    .game-card .gc-arrow {
+      font-size: 1.2rem;
+      color: #64748b;
+    }
+
+    /* ─── Game Controller Screen ─── */
+    #gameControlScreen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .gc-active-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #c084fc;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .ctrl-hint {
+      font-size: .82rem;
+      color: #4a5568;
+      text-align: center;
+    }
+
+    .big-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      width: 100%;
+      flex: 1;
+      max-height: 280px;
+    }
+
+    .big-btn {
+      border-radius: 24px;
+      border: 2px solid rgba(255,255,255,.12);
+      font-size: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: transform .08s, filter .08s;
+      touch-action: manipulation;
+      height: 100%;
+      min-height: 140px;
+    }
+
+    .big-btn span.label {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    #btnLeft {
+      background: linear-gradient(160deg, #1e3a8a, #1e40af);
+      box-shadow: 0 12px 40px rgba(30,64,175,.35);
+    }
+
+    #btnRight {
+      background: linear-gradient(160deg, #7e22ce, #9333ea);
+      box-shadow: 0 12px 40px rgba(147,51,234,.35);
+    }
+
+    .big-btn:active { transform: scale(.94); filter: brightness(1.15); }
+
+    .back-from-ctrl {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      color: #94a3b8;
+      font-size: .9rem;
+      border-radius: 14px;
+      padding: 12px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 600;
+      box-shadow: none;
+    }
+
+    .back-from-ctrl:hover { background: rgba(255,255,255,.09); }
   </style>
 </head>
 <body>
@@ -302,13 +439,11 @@
       <div class="grid">
         <button id="autoBtn" class="good" disabled>AUTO</button>
         <button id="manualBtn" class="secondary" disabled>MANUAL</button>
+        <button id="gameModeBtn" class="game-mode-btn" disabled>🎮 Game Mode</button>
       </div>
 
       <div class="group-title">Expressions</div>
       <div id="expressionGrid" class="grid"></div>
-
-      <div class="group-title">Games</div>
-      <button id="openGameBtn" class="secondary" disabled>Games</button>
 
       <div class="group-title">Custom Text</div>
       <label for="customText">Text</label>
@@ -318,54 +453,71 @@
     </div>
   </div>
 
-  <div id="gameOverlay" class="overlay">
-    <div class="screen">
-      <div class="screen-top">
-        <div>
-          <p class="screen-title">You vs NexRobo</p>
-          <p id="gameHint" class="screen-sub">Choose a game</p>
-        </div>
-        <div class="top-actions">
-          <button id="gameBackBtn" class="secondary">Back</button>
-          <button id="gameCloseBtn" class="warn">Close</button>
-        </div>
+  <!-- ═══════════════════════════════════════════════
+       GAME PANEL (fullscreen overlay)
+  ════════════════════════════════════════════════ -->
+  <div id="gamePanel">
+    <div class="gp-inner">
+
+      <!-- Header -->
+      <div class="gp-header">
+        <div class="gp-title">🎮 Game Mode</div>
+        <button id="closePanelBtn" title="Exit Game Mode">✕</button>
       </div>
 
-      <div id="introScreen" class="card">
-        <div class="center-box">
-          <div class="big-stack" style="max-width:420px;">
-            <button id="playBtn" class="good">Play</button>
+      <!-- Game Selection -->
+      <div id="gameSelectScreen">
+        <div class="game-pick-label">Choose a game</div>
+
+        <button class="game-card" data-game="GAME_SNAKE" data-name="🐍 Snake">
+          <div class="gc-icon">🐍</div>
+          <div class="gc-info">
+            <div class="gc-name">Snake</div>
+            <div class="gc-desc">Eat food, grow longer, avoid yourself</div>
           </div>
-        </div>
-      </div>
+          <div class="gc-arrow">›</div>
+        </button>
 
-      <div id="selectScreen" class="card hidden">
-        <div class="game-menu">
-          <button id="snakePick" class="game-card">
-            <div>Snake</div>
-            <div class="mini">Battle on OLED</div>
-          </button>
-          <button id="spacePick" class="game-card">
-            <div>Space Shooter</div>
-            <div class="mini">Shoot and survive</div>
-          </button>
-          <button id="flappyPick" class="game-card">
-            <div>Flappy Bird</div>
-            <div class="mini">Tap to jump</div>
-          </button>
-        </div>
-      </div>
-
-      <div id="controllerScreen" class="card hidden">
-        <div class="center-box">
-          <div class="big-stack">
-            <button id="ctrlTopBtn" class="big-arrow">▲</button>
-            <button id="ctrlBottomBtn" class="big-arrow">▼</button>
+        <button class="game-card" data-game="GAME_SPACE" data-name="🚀 Space Shooter">
+          <div class="gc-icon">🚀</div>
+          <div class="gc-info">
+            <div class="gc-name">Space Shooter</div>
+            <div class="gc-desc">Blast falling enemies before they reach you</div>
           </div>
-        </div>
+          <div class="gc-arrow">›</div>
+        </button>
+
+        <button class="game-card" data-game="GAME_FLAPPY" data-name="🐦 Flappy Bird">
+          <div class="gc-icon">🐦</div>
+          <div class="gc-info">
+            <div class="gc-name">Flappy Bird</div>
+            <div class="gc-desc">Tap to flap through the pipes</div>
+          </div>
+          <div class="gc-arrow">›</div>
+        </button>
       </div>
+
+      <!-- Game Controller -->
+      <div id="gameControlScreen">
+        <div class="gc-active-name" id="activeGameLabel">Snake</div>
+        <div class="ctrl-hint">Tap buttons to control the robot's display</div>
+
+        <div class="big-btns">
+          <button class="big-btn" id="btnLeft">
+            <span>◀</span>
+            <span class="label">Left</span>
+          </button>
+          <button class="big-btn" id="btnRight">
+            <span>▶</span>
+            <span class="label">Right</span>
+          </button>
+        </div>
+
+        <button class="back-from-ctrl" id="backToGamesBtn">← Back to game list</button>
+      </div>
+
     </div>
-  </div>
+  </div><!-- /gamePanel -->
 
   <script>
     const SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
@@ -400,30 +552,17 @@
       ['ASLEEP', 'Asleep']
     ];
 
-    const GAME_MAP = {
-      snake: { ble: 'GAME_SNAKE', title: 'Snake', top: '▲', bottom: '▼', topCmd: 'UP', bottomCmd: 'DOWN' },
-      space: { ble: 'GAME_SPACE', title: 'Space Shooter', top: '◀', bottom: '▶', topCmd: 'LEFT', bottomCmd: 'RIGHT' },
-      flappy:{ ble: 'GAME_FLAPPY', title: 'Flappy Bird', top: '▲', bottom: '⟲', topCmd: 'JUMP', bottomCmd: 'EXIT' }
-    };
-
-    let device = null;
-    let server = null;
-    let service = null;
-    let passChar = null;
-    let cmdChar = null;
-    let textChar = null;
-
+    let device = null, server = null, service = null;
+    let passChar = null, cmdChar = null, textChar = null;
     let activeMode = 'auto';
     let activeExpression = '';
     let textShown = false;
+    let inGameMode = false;
 
-    let overlayOpen = false;
-    let screenState = 'intro'; // intro | select | controller
-    let selectedGameKey = '';
-
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
     const expressionButtons = new Map();
 
+    // ── Connection State ──────────────────────────────────
     function setConnectionState(connected) {
       const badge = $('connBadge');
       badge.textContent = connected ? 'Connected' : 'Disconnected';
@@ -433,16 +572,14 @@
 
     function setButtons(enabled) {
       $('disconnectBtn').disabled = !enabled;
-      $('autoBtn').disabled = !enabled;
-      $('manualBtn').disabled = !enabled;
-      $('sendTextBtn').disabled = !enabled;
-      $('password').disabled = !enabled;
-      $('customText').disabled = !enabled;
-      $('openGameBtn').disabled = !enabled;
-      document.querySelectorAll('#expressionGrid button').forEach(btn => btn.disabled = !enabled);
-      document.querySelectorAll('#gameOverlay button').forEach(btn => {
-        if (btn.id !== 'gameBackBtn' && btn.id !== 'gameCloseBtn') btn.disabled = !enabled;
-      });
+      $('autoBtn').disabled       = !enabled;
+      $('manualBtn').disabled     = !enabled;
+      $('gameModeBtn').disabled   = !enabled;
+      $('sendTextBtn').disabled   = !enabled;
+      $('password').disabled      = !enabled;
+      $('customText').disabled    = !enabled;
+      document.querySelectorAll('#expressionGrid button')
+        .forEach(btn => btn.disabled = !enabled);
     }
 
     function updateTextButton() {
@@ -452,10 +589,9 @@
       btn.classList.toggle('text', textShown);
     }
 
-    function renderMainState() {
+    function renderActiveState() {
       $('autoBtn').classList.toggle('active', activeMode === 'auto');
       $('autoBtn').classList.toggle('mode-auto', activeMode === 'auto');
-
       $('manualBtn').classList.toggle('active', activeMode === 'manual');
       $('manualBtn').classList.toggle('mode-manual', activeMode === 'manual');
 
@@ -464,63 +600,10 @@
         btn.classList.toggle('active', on);
         btn.classList.toggle('expr', on);
       }
-
       updateTextButton();
     }
 
-    function openGameOverlay() {
-      overlayOpen = true;
-      screenState = 'intro';
-      selectedGameKey = '';
-      $('gameOverlay').classList.add('show');
-      renderGameScreen();
-    }
-
-    function closeGameOverlay(sendExit = true) {
-      overlayOpen = false;
-      screenState = 'intro';
-      selectedGameKey = '';
-      $('gameOverlay').classList.remove('show');
-      if (sendExit) sendRawCommand('EXIT');
-    }
-
-    function renderGameScreen() {
-      $('introScreen').classList.toggle('hidden', screenState !== 'intro');
-      $('selectScreen').classList.toggle('hidden', screenState !== 'select');
-      $('controllerScreen').classList.toggle('hidden', screenState !== 'controller');
-
-      $('gameHint').textContent =
-        screenState === 'intro' ? 'Press play to continue' :
-        screenState === 'select' ? 'Choose one of the 3 games' :
-        selectedGameKey ? `Playing: ${GAME_MAP[selectedGameKey].title}` : 'Choose a game';
-
-      $('gameBackBtn').textContent =
-        screenState === 'intro' ? 'Back' :
-        screenState === 'select' ? 'Back' : 'Back';
-
-      if (screenState === 'controller' && selectedGameKey) {
-        const g = GAME_MAP[selectedGameKey];
-        $('ctrlTopBtn').textContent = g.top;
-        $('ctrlBottomBtn').textContent = g.bottom;
-      }
-
-      document.querySelectorAll('#selectScreen .game-card').forEach(btn => btn.classList.remove('active'));
-      if (selectedGameKey) {
-        const pick = {
-          snake: $('snakePick'),
-          space: $('spacePick'),
-          flappy: $('flappyPick')
-        }[selectedGameKey];
-        if (pick) pick.classList.add('active');
-      }
-    }
-
-    function clearGameSelection() {
-      selectedGameKey = '';
-      screenState = 'select';
-      renderGameScreen();
-    }
-
+    // ── BLE Write ─────────────────────────────────────────
     async function writeText(characteristic, text) {
       const data = new TextEncoder().encode(text);
       try {
@@ -532,125 +615,67 @@
       await characteristic.writeValue(data);
     }
 
-    async function sendRawCommand(cmd) {
-      if (!cmdChar) return;
-      await writeText(cmdChar, cmd);
-    }
-
-    async function clearTextIfShown() {
+    async function clearTextMode() {
       if (!textShown || !textChar) return;
-      await writeText(textChar, 'CLEAR');
+      try { await writeText(textChar, 'CLEAR'); } catch (err) { console.error(err); }
       textShown = false;
       updateTextButton();
     }
 
-    async function sendFaceCommand(cmd) {
-      await clearTextIfShown();
-      if (overlayOpen) closeGameOverlay(false);
-      await sendRawCommand(cmd);
+    async function sendCommand(cmd) {
+      if (!cmdChar) return;
+      try {
+        await clearTextMode();
+        await writeText(cmdChar, cmd);
 
-      if (cmd === 'AUTO') {
-        activeMode = 'auto';
-        activeExpression = '';
-      } else if (cmd === 'MANUAL') {
-        activeMode = 'manual';
-        activeExpression = '';
-      } else {
-        activeMode = 'manual';
-        activeExpression = cmd;
-      }
-
-      renderMainState();
-    }
-
-    async function startGame(gameKey) {
-      const g = GAME_MAP[gameKey];
-      if (!g) return;
-
-      await clearTextIfShown();
-      await sendRawCommand(g.ble);
-
-      selectedGameKey = gameKey;
-      screenState = 'controller';
-      renderGameScreen();
-    }
-
-    async function controllerAction(which) {
-      if (!selectedGameKey) return;
-      const g = GAME_MAP[selectedGameKey];
-      if (!g) return;
-
-      await clearTextIfShown();
-
-      if (which === 'top') {
-        if (selectedGameKey === 'flappy') {
-          await sendRawCommand('JUMP');
+        if (cmd === 'AUTO') {
+          activeMode = 'auto'; activeExpression = '';
+        } else if (cmd === 'MANUAL') {
+          activeMode = 'manual'; activeExpression = '';
         } else {
-          await sendRawCommand(g.topCmd);
+          activeMode = 'manual'; activeExpression = cmd;
         }
-      } else if (which === 'bottom') {
-        if (selectedGameKey === 'flappy') {
-          await sendRawCommand('EXIT');
-          closeGameOverlay(false);
-          clearGameSelection();
-          return;
-        } else {
-          await sendRawCommand(g.bottomCmd);
-        }
-      }
+        renderActiveState();
+      } catch (err) { console.error(err); }
     }
 
-    async function toggleCustomText() {
+    async function sendCustomText() {
       if (!textChar) return;
-
-      if (textShown) {
-        await writeText(textChar, 'CLEAR');
-        textShown = false;
-        updateTextButton();
-        return;
-      }
-
       const value = $('customText').value.trim();
+      if (textShown) { await clearTextMode(); return; }
       if (value.length < 1 || value.length > 7) return;
-
-      await clearGameSelection();
-      await writeText(textChar, value);
-      textShown = true;
-      activeMode = 'manual';
-      activeExpression = '';
-      renderMainState();
+      try {
+        await writeText(textChar, value);
+        textShown = true;
+        activeMode = 'manual'; activeExpression = '';
+        renderActiveState();
+      } catch (err) { console.error(err); }
     }
 
+    // ── BLE Connect ───────────────────────────────────────
     async function connect() {
       try {
         device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [SERVICE_UUID] }],
           optionalServices: [SERVICE_UUID]
         });
-
         device.addEventListener('gattserverdisconnected', onDisconnected);
 
-        server = await device.gatt.connect();
-        service = await server.getPrimaryService(SERVICE_UUID);
-        passChar = await service.getCharacteristic(PASS_UUID);
-        cmdChar = await service.getCharacteristic(CMD_UUID);
-        textChar = await service.getCharacteristic(TEXT_UUID);
+        server    = await device.gatt.connect();
+        service   = await server.getPrimaryService(SERVICE_UUID);
+        passChar  = await service.getCharacteristic(PASS_UUID);
+        cmdChar   = await service.getCharacteristic(CMD_UUID);
+        textChar  = await service.getCharacteristic(TEXT_UUID);
 
         const pass = $('password').value.trim() || 'nexrobo';
         await writeText(passChar, pass);
 
         setButtons(true);
         setConnectionState(true);
-
-        activeMode = 'auto';
-        activeExpression = '';
+        activeMode = 'auto'; activeExpression = '';
         textShown = false;
-        overlayOpen = false;
-        selectedGameKey = '';
-        renderMainState();
-        renderGameScreen();
-
-        await sendRawCommand('AUTO');
+        renderActiveState();
+        await sendCommand('AUTO');
       } catch (err) {
         console.error(err);
         setButtons(false);
@@ -661,61 +686,157 @@
     function onDisconnected() {
       setButtons(false);
       setConnectionState(false);
-      activeMode = 'auto';
-      activeExpression = '';
+      activeMode = 'auto'; activeExpression = '';
       textShown = false;
-      selectedGameKey = '';
-      overlayOpen = false;
-      $('gameOverlay').classList.remove('show');
-      renderMainState();
-      renderGameScreen();
+      inGameMode = false;
+      closeGamePanel(false); // close without sending BLE (already disconnected)
+      renderActiveState();
     }
 
     function disconnect() {
       if (device && device.gatt.connected) device.gatt.disconnect();
     }
 
+    // ── GAME PANEL ────────────────────────────────────────
+    let currentGameCmd  = '';
+    let currentGameName = '';
+
+    function openGamePanel() {
+      if (showingText) return; // respect: text mode blocks game start
+      $('gamePanel').classList.add('open');
+      showSelectScreen();
+      inGameMode = true;
+    }
+
+    async function closeGamePanel(sendExit = true) {
+      $('gamePanel').classList.remove('open');
+      showSelectScreen();
+      inGameMode = false;
+      if (sendExit && cmdChar) {
+        try { await writeText(cmdChar, 'GAME_EXIT'); } catch (e) {}
+      }
+      // Restore normal state
+      activeMode = 'auto'; activeExpression = '';
+      renderActiveState();
+    }
+
+    function showSelectScreen() {
+      $('gameSelectScreen').style.display   = 'flex';
+      $('gameControlScreen').style.display  = 'none';
+      currentGameCmd  = '';
+      currentGameName = '';
+    }
+
+    async function selectGame(cmd, name) {
+      currentGameCmd  = cmd;
+      currentGameName = name;
+      $('activeGameLabel').textContent = name;
+      $('gameSelectScreen').style.display  = 'none';
+      $('gameControlScreen').style.display = 'flex';
+
+      // Send BLE game command
+      if (cmdChar) {
+        try { await writeText(cmdChar, cmd); } catch (e) { console.error(e); }
+      }
+    }
+
+    async function backToGameList() {
+      // Exit current game, go back to selection (stay in game panel)
+      if (cmdChar) {
+        try { await writeText(cmdChar, 'GAME_EXIT'); } catch (e) {}
+      }
+      showSelectScreen();
+    }
+
+    // ── Control buttons — fast, reliable ─────────────────
+    function setupControlButton(btn, cmd) {
+      let interval = null;
+
+      async function fire() {
+        if (!cmdChar) return;
+        try { await writeText(cmdChar, cmd); } catch (e) {}
+      }
+
+      // Touch events for mobile (most important)
+      btn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        fire();
+        interval = setInterval(fire, 80);
+      }, { passive: false });
+
+      btn.addEventListener('touchend', e => {
+        e.preventDefault();
+        clearInterval(interval);
+        interval = null;
+      }, { passive: false });
+
+      // Mouse events for desktop
+      btn.addEventListener('mousedown', () => {
+        fire();
+        interval = setInterval(fire, 80);
+      });
+
+      btn.addEventListener('mouseup', () => {
+        clearInterval(interval);
+        interval = null;
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        clearInterval(interval);
+        interval = null;
+      });
+    }
+
+    // ── Wire everything up ────────────────────────────────
     $('connectBtn').addEventListener('click', connect);
     $('disconnectBtn').addEventListener('click', disconnect);
-
-    $('autoBtn').addEventListener('click', () => sendFaceCommand('AUTO'));
-    $('manualBtn').addEventListener('click', () => sendFaceCommand('MANUAL'));
-    $('sendTextBtn').addEventListener('click', toggleCustomText);
-
-    $('openGameBtn').addEventListener('click', openGameOverlay);
-
-    $('gameBackBtn').addEventListener('click', async () => {
-      if (!overlayOpen) return;
-
-      if (screenState === 'controller') {
-        await sendRawCommand('EXIT');
-        selectedGameKey = '';
-        screenState = 'select';
-        renderGameScreen();
-        return;
-      }
-
-      if (screenState === 'select') {
-        screenState = 'intro';
-        renderGameScreen();
-        return;
-      }
-
-      closeGameOverlay(false);
+    $('autoBtn').addEventListener('click', () => sendCommand('AUTO'));
+    $('manualBtn').addEventListener('click', () => sendCommand('MANUAL'));
+    $('sendTextBtn').addEventListener('click', sendCustomText);
+    $('customText').addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendCustomText();
     });
 
-    $('gameCloseBtn').addEventListener('click', () => closeGameOverlay(true));
-    $('playBtn').addEventListener('click', () => {
-      screenState = 'select';
-      renderGameScreen();
+    // Game mode button
+    $('gameModeBtn').addEventListener('click', openGamePanel);
+
+    // Close panel button
+    $('closePanelBtn').addEventListener('click', () => closeGamePanel(true));
+
+    // Game cards
+    document.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('click', () => {
+        selectGame(card.dataset.game, card.dataset.name);
+      });
     });
 
-    $('snakePick').addEventListener('click', () => startGame('snake'));
-    $('spacePick').addEventListener('click', () => startGame('space'));
-    $('flappyPick').addEventListener('click', () => startGame('flappy'));
+    // Back button in controller
+    $('backToGamesBtn').addEventListener('click', backToGameList);
 
-    $('ctrlTopBtn').addEventListener('click', () => controllerAction('top'));
-    $('ctrlBottomBtn').addEventListener('click', () => controllerAction('bottom'));
+    // Control buttons
+    setupControlButton($('btnLeft'),  'BTN_LEFT');
+    setupControlButton($('btnRight'), 'BTN_RIGHT');
 
-    $('customText').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') toggl
+    // Expression buttons
+    const grid = $('expressionGrid');
+    EXPRESSIONS.forEach(([cmd, label]) => {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.disabled = true;
+      btn.addEventListener('click', async () => {
+        // Exit game if active
+        if (inGameMode) await closeGamePanel(true);
+        await sendCommand(cmd);
+      });
+      expressionButtons.set(cmd, btn);
+      grid.appendChild(btn);
+    });
+
+    // Init
+    let showingText = false; // local mirror for text guard
+    setButtons(false);
+    setConnectionState(false);
+    renderActiveState();
+  </script>
+</body>
+</html>
