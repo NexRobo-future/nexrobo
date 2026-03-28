@@ -5,262 +5,174 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NexRobo Bluetooth Controller</title>
   <style>
-    :root{
-      --bg:#09111f;
-      --panel:#111a33;
-      --panel2:#0d1428;
-      --text:#eef3ff;
-      --muted:#aab4d6;
-      --line:rgba(255,255,255,.12);
-      --good:#59d39b;
-      --warn:#ff966b;
-      --accent:#7aa7ff;
-      --shadow:0 14px 34px rgba(0,0,0,.28);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:radial-gradient(circle at top,#18264a 0%,var(--bg) 60%);
-      color:var(--text);
-    }
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:16px;
-    }
-    .hero{
-      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
-      border:1px solid var(--line);
-      border-radius:22px;
-      padding:16px;
-      box-shadow:var(--shadow);
-      margin-bottom:14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .hero h1{
-      margin:0;
-      font-size:1.5rem;
-      letter-spacing:.2px;
-    }
-    .pill{
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      color:var(--muted);
-      font-size:.92rem;
-      min-width:120px;
-      text-align:center;
-    }
-    .pill.connected{
-      color:#072014;
-      background:linear-gradient(180deg,#8ef6c6,#35c989);
-      font-weight:700;
-    }
-    .pill.disconnected{
-      color:#301010;
-      background:linear-gradient(180deg,#ffb5b5,#ff7b7b);
-      font-weight:700;
-    }
-    .grid2{
-      display:grid;
-      gap:10px;
-      grid-template-columns:1fr 1fr;
-      margin:12px 0;
-    }
-    @media (max-width: 760px){
-      .grid2{grid-template-columns:1fr}
-    }
-    .card{
-      background:rgba(17,26,51,.94);
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:14px;
-      box-shadow:var(--shadow);
-    }
-    label{
-      display:block;
-      font-size:.92rem;
-      color:var(--muted);
-      margin-bottom:6px;
-    }
-    input, button{
-      width:100%;
-      border:0;
-      outline:none;
-      border-radius:14px;
-      padding:14px 14px;
-      font-size:1rem;
-    }
-    input{
-      background:#0b1226;
-      color:var(--text);
-      border:1px solid var(--line);
-    }
-    button{
-      background:linear-gradient(180deg,#6f9bff,#4d7dff);
-      color:#fff;
-      font-weight:700;
-      cursor:pointer;
-      transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
-    }
-    button:active{transform:scale(.98)}
-    button.secondary{
-      background:linear-gradient(180deg,#273052,#171f3e);
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
-    button.good{background:linear-gradient(180deg,#63e0aa,#2aaa70)}
-    button.warn{background:linear-gradient(180deg,#ff9e7b,#ff6f6f)}
-    button.big{
-      padding:15px 16px;
-      font-size:1.02rem;
-    }
-    button.active{
-      box-shadow:0 0 0 2px rgba(255,255,255,.16) inset, 0 10px 18px rgba(0,0,0,.18);
-      filter:brightness(1.07);
-    }
-    button.active.mode-auto{background:linear-gradient(180deg,#81f7c6,#2ebb7d); color:#062013}
-    button.active.mode-manual{background:linear-gradient(180deg,#ffd86d,#ffb93d); color:#261900}
-    button.active.expr{background:linear-gradient(180deg,#ffbf73,#ff8f3d); color:#261900}
-    button.active.text{background:linear-gradient(180deg,#96e3ff,#58b6ff); color:#062033}
-    button:disabled{opacity:.5; cursor:not-allowed}
-    .group-title{
-      margin:16px 0 8px;
-      font-size:1rem;
-      color:#7cffc4;
-      font-weight:700;
-    }
-    .grid{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
-    }
-    .game-btn{
-      background:linear-gradient(180deg,#24406f,#182949);
-      border:1px solid var(--line);
-      box-shadow:none;
+    :root {
+      --bg: #0b1020;
+      --card: #121a33;
+      --text: #eef2ff;
+      --muted: #aab4d6;
+      --accent2: #7cffc4;
+      --border: rgba(255,255,255,.12);
     }
 
-    /* Modal game panel */
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(4,8,18,.75);
-      backdrop-filter:blur(8px);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:14px;
-      z-index:50;
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, #182447 0%, var(--bg) 60%);
+      color: var(--text);
     }
-    .modal.open{display:flex}
-    .modal-shell{
-      width:min(1060px,100%);
-      max-height:92vh;
-      overflow:auto;
-      background:linear-gradient(180deg,rgba(18,28,56,.98),rgba(12,18,36,.98));
-      border:1px solid var(--line);
-      border-radius:26px;
-      box-shadow:0 24px 70px rgba(0,0,0,.45);
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
     }
-    .modal-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:14px 14px 0;
+
+    .hero {
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .modal-head h2{
-      margin:0;
-      font-size:1.15rem;
+
+    h1 { margin: 0; font-size: 1.5rem; }
+
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: .92rem;
+      min-width: 120px;
+      text-align: center;
     }
-    .close-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
+
+    .pill.connected {
+      color: #071b12;
+      background: linear-gradient(180deg, #8cf7c5, #32c887);
+      border-color: rgba(255,255,255,.15);
+      font-weight: 700;
     }
-    .close-btn{
-      width:auto;
-      min-width:110px;
-      background:linear-gradient(180deg,#3b466d,#232b4b);
-      border:1px solid var(--line);
+
+    .pill.disconnected {
+      color: #2c1010;
+      background: linear-gradient(180deg, #ffb0b0, #ff7d7d);
+      border-color: rgba(255,255,255,.15);
+      font-weight: 700;
     }
-    .modal-body{
-      padding:14px;
-      display:grid;
-      gap:12px;
-      grid-template-columns:1.15fr .85fr;
+
+    .row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      margin: 12px 0;
     }
-    @media (max-width: 900px){
-      .modal-body{grid-template-columns:1fr}
+
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; }
     }
-    .game-preview{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(3,1fr);
+
+    .card {
+      background: rgba(18,26,51,.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
     }
-    @media (max-width: 760px){
-      .game-preview{grid-template-columns:1fr}
+
+    label {
+      display: block;
+      font-size: .92rem;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
-    .game-card{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      background:rgba(255,255,255,.04);
+
+    input, button {
+      width: 100%;
+      border: 0;
+      outline: none;
+      border-radius: 14px;
+      padding: 14px 14px;
+      font-size: 1rem;
     }
-    .game-card h3{
-      margin:0 0 6px;
-      font-size:1.05rem;
+
+    input {
+      background: #0a1126;
+      color: var(--text);
+      border: 1px solid var(--border);
     }
-    .game-card p{
-      margin:0 0 12px;
-      color:var(--muted);
-      font-size:.92rem;
-      line-height:1.45;
+
+    button {
+      background: linear-gradient(180deg, #74a7ff, #4d7dff);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(77,125,255,.25);
+      transition: transform .12s ease, filter .12s ease, background .12s ease;
     }
-    .game-card.active{
-      border-color:rgba(124,255,196,.5);
-      box-shadow:0 0 0 1px rgba(124,255,196,.22) inset;
+
+    button:active { transform: scale(.98); }
+
+    button.secondary {
+      background: linear-gradient(180deg, #2b355b, #1a2242);
+      box-shadow: none;
+      border: 1px solid var(--border);
     }
-    .controller{
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:rgba(255,255,255,.04);
-      padding:14px;
+
+    button.good { background: linear-gradient(180deg, #58d9a1, #2aa66f); }
+    button.warn { background: linear-gradient(180deg, #ff9a7d, #ff6c6c); }
+
+    button.active {
+      box-shadow: 0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
+      filter: brightness(1.08);
+      border: 1px solid rgba(255,255,255,.18);
     }
-    .controller h3{
-      margin:0 0 6px;
-      font-size:1.05rem;
+
+    button.active.mode-auto {
+      background: linear-gradient(180deg, #7cffc4, #2fbf7e);
+      color: #062013;
     }
-    .controller p{
-      margin:0 0 12px;
-      color:var(--muted);
-      font-size:.92rem;
+
+    button.active.mode-manual {
+      background: linear-gradient(180deg, #ffd36e, #ffb93d);
+      color: #231700;
     }
-    .control-grid{
-      display:grid;
-      gap:10px;
+
+    button.active.expr {
+      background: linear-gradient(180deg, #ffbf6e, #ff8f3d);
+      color: #231700;
     }
-    .snake-controls{
-      grid-template-columns:repeat(2,1fr);
+
+    button.active.text {
+      background: linear-gradient(180deg, #8fe0ff, #5cb5ff);
+      color: #062033;
     }
-    .shooter-controls{
-      grid-template-columns:repeat(2,1fr);
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
     }
-    .flappy-controls{
-      grid-template-columns:1fr;
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      margin-top: 12px;
     }
-    .hint{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:.9rem;
-      line-height:1.45;
+
+    .group-title {
+      margin: 16px 0 8px;
+      font-size: 1rem;
+      color: var(--accent2);
+      font-weight: 700;
     }
   </style>
 </head>
@@ -271,24 +183,20 @@
       <div id="connBadge" class="pill disconnected">Disconnected</div>
     </div>
 
-    <div class="grid2">
+    <div class="row">
       <div class="card">
         <label for="password">Password</label>
         <input id="password" type="text" value="nexrobo" autocomplete="off" />
       </div>
       <div class="card">
         <label>Bluetooth</label>
-        <button id="connectBtn" class="big">Connect</button>
+        <button id="connectBtn">Connect</button>
         <div style="height:10px"></div>
         <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
       </div>
     </div>
 
     <div class="card">
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button id="playGameBtn" class="good big" disabled>Play Game</button>
-      </div>
-
       <div class="group-title">Mode</div>
       <div class="grid">
         <button id="autoBtn" class="good" disabled>AUTO</button>
@@ -303,49 +211,6 @@
       <input id="customText" type="text" maxlength="7" placeholder="Up to 7 chars" disabled />
       <div style="height:10px"></div>
       <button id="sendTextBtn" class="warn" disabled>Show Text</button>
-    </div>
-  </div>
-
-  <div id="gameModal" class="modal" aria-hidden="true">
-    <div class="modal-shell">
-      <div class="modal-head">
-        <h2>Game Mode — You vs NexRobo</h2>
-        <div class="close-row">
-          <button id="closeGameBtn" class="close-btn">Close</button>
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <div>
-          <div class="game-preview">
-            <div id="snakeCard" class="game-card">
-              <h3>Snake</h3>
-              <p>Use four directions. Endless play, score grows with every food.</p>
-              <button id="snakeBtn" class="game-btn" disabled>Select Snake</button>
-            </div>
-            <div id="shooterCard" class="game-card">
-              <h3>Space Shooter</h3>
-              <p>Use left and right. Auto-fire is built in for one-hand play.</p>
-              <button id="shooterBtn" class="game-btn" disabled>Select Shooter</button>
-            </div>
-            <div id="flappyCard" class="game-card">
-              <h3>Flappy Bird</h3>
-              <p>One button only. Tap to fly and keep going forever.</p>
-              <button id="flappyBtn" class="game-btn" disabled>Select Flappy</button>
-            </div>
-          </div>
-          <div class="hint">
-            The OLED will switch into game mode after you choose a game.
-            Closing this panel or disconnecting will return NexRobo to normal animation.
-          </div>
-        </div>
-
-        <div class="controller">
-          <h3 id="controllerTitle">Controller</h3>
-          <p id="controllerDesc">Choose a game to show the right controls.</p>
-          <div id="controllerGrid" class="control-grid"></div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -382,22 +247,6 @@
       ['ASLEEP', 'Asleep']
     ];
 
-    const GAME_BUTTONS = {
-      snake: [
-        ['UP', '↑'],
-        ['LEFT', '←'],
-        ['RIGHT', '→'],
-        ['DOWN', '↓']
-      ],
-      shooter: [
-        ['LEFT', 'Left'],
-        ['RIGHT', 'Right']
-      ],
-      flappy: [
-        ['FLY', 'Fly']
-      ]
-    };
-
     let device = null;
     let server = null;
     let service = null;
@@ -408,8 +257,6 @@
     let activeMode = 'auto';
     let activeExpression = '';
     let textShown = false;
-    let gameOpen = false;
-    let activeGame = '';
 
     const $ = (id) => document.getElementById(id);
     const expressionButtons = new Map();
@@ -428,13 +275,7 @@
       $('sendTextBtn').disabled = !enabled;
       $('password').disabled = !enabled;
       $('customText').disabled = !enabled;
-      $('playGameBtn').disabled = !enabled;
       document.querySelectorAll('#expressionGrid button').forEach(btn => btn.disabled = !enabled);
-      $('snakeBtn').disabled = !enabled;
-      $('shooterBtn').disabled = !enabled;
-      $('flappyBtn').disabled = !enabled;
-      $('closeGameBtn').disabled = !enabled;
-      renderGameController();
     }
 
     function updateTextButton() {
@@ -458,56 +299,6 @@
       }
 
       updateTextButton();
-      renderGameCards();
-      renderGameController();
-    }
-
-    function renderGameCards() {
-      $('snakeCard').classList.toggle('active', activeGame === 'snake');
-      $('shooterCard').classList.toggle('active', activeGame === 'shooter');
-      $('flappyCard').classList.toggle('active', activeGame === 'flappy');
-    }
-
-    function renderGameController() {
-      const grid = $('controllerGrid');
-      grid.innerHTML = '';
-      const connected = !$('disconnectBtn').disabled;
-
-      let title = 'Controller';
-      let desc = 'Choose a game to show the right controls.';
-      let buttons = [];
-
-      if (activeGame === 'snake') {
-        title = 'Snake Controller';
-        desc = 'Tap the arrows to move the snake.';
-        buttons = GAME_BUTTONS.snake;
-        grid.className = 'control-grid snake-controls';
-      } else if (activeGame === 'shooter') {
-        title = 'Space Shooter Controller';
-        desc = 'Move left and right. Auto-fire is built in.';
-        buttons = GAME_BUTTONS.shooter;
-        grid.className = 'control-grid shooter-controls';
-      } else if (activeGame === 'flappy') {
-        title = 'Flappy Controller';
-        desc = 'Tap Fly to lift the bird.';
-        buttons = GAME_BUTTONS.flappy;
-        grid.className = 'control-grid flappy-controls';
-      } else {
-        grid.className = 'control-grid';
-      }
-
-      $('controllerTitle').textContent = title;
-      $('controllerDesc').textContent = desc;
-
-      buttons.forEach(([cmd, label]) => {
-        const btn = document.createElement('button');
-        btn.textContent = label;
-        btn.disabled = !connected;
-        btn.addEventListener('click', async () => {
-          await sendGameInput(cmd);
-        });
-        grid.appendChild(btn);
-      });
     }
 
     async function writeText(characteristic, text) {
@@ -544,13 +335,6 @@
         } else if (cmd === 'MANUAL') {
           activeMode = 'manual';
           activeExpression = '';
-        } else if (cmd === 'GAME_CLOSE') {
-          activeMode = 'auto';
-          activeExpression = '';
-          activeGame = '';
-        } else if (cmd.startsWith('GAME_')) {
-          activeMode = 'game';
-          activeExpression = '';
         } else {
           activeMode = 'manual';
           activeExpression = cmd;
@@ -560,53 +344,6 @@
       } catch (err) {
         console.error(err);
       }
-    }
-
-    async function sendGameInput(cmd) {
-      if (!cmdChar) return;
-      try {
-        await writeText(cmdChar, cmd);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    async function openGamePanel() {
-      gameOpen = true;
-      $('gameModal').classList.add('open');
-      $('gameModal').setAttribute('aria-hidden', 'false');
-      activeMode = 'game';
-      activeExpression = '';
-      activeGame = '';
-      renderGameCards();
-      renderGameController();
-      renderActiveState();
-      await sendCommand('GAME_MENU');
-    }
-
-    async function closeGamePanel() {
-      gameOpen = false;
-      $('gameModal').classList.remove('open');
-      $('gameModal').setAttribute('aria-hidden', 'true');
-      activeMode = 'auto';
-      activeExpression = '';
-      activeGame = '';
-      renderGameCards();
-      renderGameController();
-      renderActiveState();
-      await sendCommand('GAME_CLOSE');
-    }
-
-    async function chooseGame(game) {
-      activeMode = 'game';
-      activeExpression = '';
-      activeGame = game;
-      renderGameCards();
-      renderGameController();
-      renderActiveState();
-      if (game === 'snake') await sendCommand('GAME_SNAKE');
-      if (game === 'shooter') await sendCommand('GAME_SHOOTER');
-      if (game === 'flappy') await sendCommand('GAME_FLAPPY');
     }
 
     async function sendCustomText() {
@@ -656,7 +393,6 @@
         activeMode = 'auto';
         activeExpression = '';
         textShown = false;
-        activeGame = '';
         renderActiveState();
 
         await sendCommand('AUTO');
@@ -673,10 +409,6 @@
       activeMode = 'auto';
       activeExpression = '';
       textShown = false;
-      activeGame = '';
-      gameOpen = false;
-      $('gameModal').classList.remove('open');
-      $('gameModal').setAttribute('aria-hidden', 'true');
       renderActiveState();
     }
 
@@ -688,13 +420,6 @@
 
     $('connectBtn').addEventListener('click', connect);
     $('disconnectBtn').addEventListener('click', disconnect);
-
-    $('playGameBtn').addEventListener('click', openGamePanel);
-    $('closeGameBtn').addEventListener('click', closeGamePanel);
-
-    $('snakeBtn').addEventListener('click', () => chooseGame('snake'));
-    $('shooterBtn').addEventListener('click', () => chooseGame('shooter'));
-    $('flappyBtn').addEventListener('click', () => chooseGame('flappy'));
 
     $('autoBtn').addEventListener('click', async () => {
       await sendCommand('AUTO');
