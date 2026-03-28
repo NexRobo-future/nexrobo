@@ -2,841 +2,835 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NexRobo Bluetooth Controller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NexRobo Controller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <style>
     :root {
-      --bg: #0b1020;
-      --card: #121a33;
-      --text: #eef2ff;
-      --muted: #aab4d6;
-      --accent2: #7cffc4;
-      --border: rgba(255,255,255,.12);
+      --bg:          #07090f;
+      --surface:     #0d1117;
+      --surface2:    #131924;
+      --surface3:    #1a2235;
+      --border:      rgba(255,255,255,.08);
+      --border-hi:   rgba(255,255,255,.16);
+      --text:        #e8edf8;
+      --muted:       #6b7a99;
+      --muted2:      #3d4f6e;
+      --accent:      #3b82f6;
+      --accent-glow: rgba(59,130,246,.28);
+      --green:       #22c55e;
+      --green-glow:  rgba(34,197,94,.22);
+      --red:         #ef4444;
+      --red-glow:    rgba(239,68,68,.22);
+      --amber:       #f59e0b;
+      --purple:      #a855f7;
+      --purple-glow: rgba(168,85,247,.25);
+      --cyan:        #06b6d4;
     }
 
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(circle at top, #182447 0%, var(--bg) 60%);
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
       color: var(--text);
+      min-height: 100dvh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .wrap {
-      max-width: 980px;
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.013) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.013) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 20px 16px 48px;
     }
 
-    .hero {
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      margin-bottom: 14px;
+    /* ── Topbar ── */
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      flex-wrap: wrap;
+      margin-bottom: 24px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
     }
 
-    h1 { margin: 0; font-size: 1.5rem; }
+    .brand { display: flex; align-items: center; gap: 10px; }
 
-    .pill {
-      padding: 10px 14px;
+    .brand-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+      flex-shrink: 0;
+      animation: blink 2.4s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.4; transform:scale(.8); }
+    }
+
+    .brand-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .brand-sub {
+      font-size: .7rem; color: var(--muted);
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .status-badge {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 14px;
       border-radius: 999px;
+      font-size: .78rem; font-weight: 600; letter-spacing: .04em;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
+      background: var(--surface2);
       color: var(--muted);
-      font-size: .92rem;
-      min-width: 120px;
-      text-align: center;
+      transition: all .3s;
     }
 
-    .pill.connected {
-      color: #071b12;
-      background: linear-gradient(180deg, #8cf7c5, #32c887);
-      border-color: rgba(255,255,255,.15);
-      font-weight: 700;
+    .status-badge .sdot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--muted2);
+      transition: all .3s;
     }
 
-    .pill.disconnected {
-      color: #2c1010;
-      background: linear-gradient(180deg, #ffb0b0, #ff7d7d);
-      border-color: rgba(255,255,255,.15);
-      font-weight: 700;
+    .status-badge.connected {
+      background: rgba(34,197,94,.08);
+      border-color: rgba(34,197,94,.22);
+      color: var(--green);
+    }
+    .status-badge.connected .sdot {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green-glow);
+      animation: blink 1.6s ease-in-out infinite;
+    }
+    .status-badge.disconnected {
+      background: rgba(239,68,68,.07);
+      border-color: rgba(239,68,68,.18);
+      color: var(--red);
+    }
+    .status-badge.disconnected .sdot { background: var(--red); }
+
+    /* ── Section label ── */
+    .slabel {
+      font-size: .68rem; font-weight: 700;
+      letter-spacing: .13em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px; padding-left: 2px;
     }
 
-    .row {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: 1fr 1fr;
-      margin: 12px 0;
-    }
-
-    @media (max-width: 640px) {
-      .row { grid-template-columns: 1fr; }
-    }
-
+    /* ── Card ── */
     .card {
-      background: rgba(18,26,51,.92);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px;
+      border-radius: 20px;
+      padding: 18px;
     }
 
-    label {
-      display: block;
-      font-size: .92rem;
-      color: var(--muted);
-      margin-bottom: 6px;
+    .spacer { height: 20px; }
+
+    /* ── Inputs ── */
+    .field-label {
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .05em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 7px;
     }
 
-    input, button {
+    input[type="text"] {
       width: 100%;
-      border: 0;
-      outline: none;
-      border-radius: 14px;
-      padding: 14px 14px;
-      font-size: 1rem;
-    }
-
-    input {
-      background: #0a1126;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
       color: var(--text);
-      border: 1px solid var(--border);
+      font-family: 'Space Mono', monospace;
+      font-size: .88rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
     }
 
-    button {
-      background: linear-gradient(180deg, #74a7ff, #4d7dff);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(77,125,255,.25);
-      transition: transform .12s ease, filter .12s ease, background .12s ease;
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.1);
     }
 
-    button:active { transform: scale(.98); }
+    input[type="text"]::placeholder { color: var(--muted2); }
 
-    button.secondary {
-      background: linear-gradient(180deg, #2b355b, #1a2242);
-      box-shadow: none;
-      border: 1px solid var(--border);
-    }
-
-    button.good { background: linear-gradient(180deg, #58d9a1, #2aa66f); }
-    button.warn { background: linear-gradient(180deg, #ff9a7d, #ff6c6c); }
-
-    button.active {
-      box-shadow: 0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
-      filter: brightness(1.08);
-      border: 1px solid rgba(255,255,255,.18);
-    }
-
-    button.active.mode-auto {
-      background: linear-gradient(180deg, #7cffc4, #2fbf7e);
-      color: #062013;
-    }
-
-    button.active.mode-manual {
-      background: linear-gradient(180deg, #ffd36e, #ffb93d);
-      color: #231700;
-    }
-
-    button.active.expr {
-      background: linear-gradient(180deg, #ffbf6e, #ff8f3d);
-      color: #231700;
-    }
-
-    button.active.text {
-      background: linear-gradient(180deg, #8fe0ff, #5cb5ff);
-      color: #062033;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .grid {
+    /* ── Connect grid ── */
+    .connect-grid {
       display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      margin-top: 12px;
+      grid-template-columns: 1fr auto;
+      gap: 12px; align-items: end;
+    }
+    @media(max-width:520px) { .connect-grid { grid-template-columns: 1fr; } }
+
+    .btn-row { display: flex; gap: 8px; }
+
+    /* ── Buttons ── */
+    button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border: 1px solid transparent;
+      outline: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-weight: 700;
+      font-size: .86rem; letter-spacing: .03em;
+      border-radius: 10px;
+      padding: 11px 18px;
+      transition: transform .1s, filter .1s, opacity .2s;
+      white-space: nowrap;
+      -webkit-user-select: none; user-select: none;
     }
 
-    .group-title {
-      margin: 16px 0 8px;
-      font-size: 1rem;
-      color: var(--accent2);
-      font-weight: 700;
+    button:active:not(:disabled) { transform: scale(.96); }
+    button:disabled { opacity: .35; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 3px 14px var(--accent-glow);
+      border-color: transparent;
+    }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.12); }
+
+    .btn-ghost {
+      background: var(--surface2); color: var(--muted);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--surface3); color: var(--text); border-color: var(--border-hi); }
+
+    .btn-danger  { background: rgba(239,68,68,.1);   color: var(--red);    border-color: rgba(239,68,68,.18); }
+    .btn-success { background: rgba(34,197,94,.1);   color: var(--green);  border-color: rgba(34,197,94,.18); }
+    .btn-amber   { background: rgba(245,158,11,.1);  color: var(--amber);  border-color: rgba(245,158,11,.18); }
+    .btn-purple  { background: rgba(168,85,247,.12); color: var(--purple); border-color: rgba(168,85,247,.22); box-shadow: 0 3px 16px var(--purple-glow); }
+
+    .btn-danger:hover:not(:disabled)  { background: rgba(239,68,68,.18); }
+    .btn-success:hover:not(:disabled) { background: rgba(34,197,94,.18); }
+    .btn-amber:hover:not(:disabled)   { background: rgba(245,158,11,.18); }
+    .btn-purple:hover:not(:disabled)  { background: rgba(168,85,247,.2); filter: brightness(1.08); }
+
+    /* Active overrides */
+    .bav-green  { background: rgba(34,197,94,.17)  !important; color: var(--green)  !important; border-color: rgba(34,197,94,.35)  !important; box-shadow: 0 0 0 3px rgba(34,197,94,.1)  !important; }
+    .bav-amber  { background: rgba(245,158,11,.17) !important; color: var(--amber)  !important; border-color: rgba(245,158,11,.35) !important; box-shadow: 0 0 0 3px rgba(245,158,11,.1) !important; }
+    .bav-cyan   { background: rgba(6,182,212,.17)  !important; color: var(--cyan)   !important; border-color: rgba(6,182,212,.3)   !important; box-shadow: 0 0 0 3px rgba(6,182,212,.1)  !important; }
+    .bav-expr   { background: rgba(168,85,247,.17) !important; color: var(--purple) !important; border-color: rgba(168,85,247,.35) !important; }
+
+    /* ── Mode row ── */
+    .mode-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mode-row button { flex: 1; min-width: 88px; padding: 12px 12px; }
+
+    /* ── Expressions ── */
+    .expr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+      gap: 7px;
     }
 
-    /* ─── Game Mode Button ─── */
-    button.game-mode-btn {
-      background: linear-gradient(135deg, #a855f7, #6d28d9);
-      box-shadow: 0 8px 24px rgba(109,40,217,.35);
-      font-size: 1.05rem;
-      letter-spacing: .02em;
+    .expr-grid button {
+      padding: 10px 6px; font-size: .8rem;
+      background: var(--surface2); color: var(--muted);
+      border-color: var(--border); box-shadow: none;
     }
-    button.game-mode-btn:hover { filter: brightness(1.12); }
+    .expr-grid button:hover:not(:disabled) { background: var(--surface3); color: var(--text); border-color: var(--border-hi); }
 
-    /* ─── Game Panel (fullscreen overlay) ─── */
+    /* ── Text row ── */
+    .text-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+    @media(max-width:420px) { .text-row { grid-template-columns: 1fr; } }
+
+    /* ════════════════════════════════════════════
+       GAME PANEL
+    ════════════════════════════════════════════ */
     #gamePanel {
       display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: radial-gradient(ellipse at 50% 0%, #1e0a3c 0%, #080c1a 70%);
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 0;
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg);
+      flex-direction: column; align-items: center;
       overflow: hidden;
     }
 
     #gamePanel.open { display: flex; }
 
-    /* scanline texture */
     #gamePanel::before {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(255,255,255,.018) 2px,
-        rgba(255,255,255,.018) 4px
-      );
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(168,85,247,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(168,85,247,.04) 1px, transparent 1px);
+      background-size: 24px 24px;
       pointer-events: none;
-      z-index: 0;
     }
 
-    .gp-inner {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 520px;
+    #gamePanel::after {
+      content: '';
+      position: absolute;
+      top: -140px; left: 50%; transform: translateX(-50%);
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, rgba(168,85,247,.11) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .gp-wrap {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 480px;
       padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+      display: flex; flex-direction: column;
       min-height: 100dvh;
     }
 
     .gp-header {
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 26px;
     }
 
-    .gp-title {
-      font-size: 1.4rem;
-      font-weight: 800;
-      letter-spacing: .04em;
-      background: linear-gradient(90deg, #c084fc, #818cf8, #67e8f9);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .gp-logo-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.05rem; font-weight: 700; letter-spacing: .04em;
     }
 
-    #closePanelBtn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.15);
-      background: rgba(255,255,255,.08);
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: white;
-      padding: 0;
-      box-shadow: none;
-      transition: background .15s;
+    .gp-logo-sub {
+      font-size: .68rem; color: var(--purple);
+      letter-spacing: .1em; text-transform: uppercase; margin-top: 2px;
+    }
+
+    .gp-close {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--surface2) !important;
+      border-color: var(--border) !important;
+      color: var(--muted) !important;
+      font-size: 1rem; padding: 0; box-shadow: none !important;
       flex-shrink: 0;
     }
 
-    #closePanelBtn:hover { background: rgba(255,255,255,.16); }
-
-    /* ─── Game Selection Screen ─── */
-    #gameSelectScreen {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      flex: 1;
+    .gp-close:hover:not(:disabled) {
+      background: var(--surface3) !important;
+      color: var(--text) !important;
+      border-color: var(--border-hi) !important;
     }
 
-    .game-pick-label {
-      font-size: .88rem;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      margin-bottom: 4px;
+    /* ── Select screen ── */
+    #gameSelectScreen {
+      display: flex; flex-direction: column;
+      gap: 10px; flex: 1;
+    }
+
+    .pick-label {
+      font-size: .68rem; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
     }
 
     .game-card {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 20px;
-      padding: 22px 20px;
-      cursor: pointer;
-      transition: background .15s, border-color .15s, transform .1s;
-      width: 100%;
-      text-align: left;
-      color: white;
-      font-size: 1rem;
+      display: flex; align-items: center; gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border) !important;
+      border-radius: 18px;
+      padding: 17px 15px;
+      cursor: pointer; width: 100%; text-align: left;
+      color: var(--text); font-size: 1rem;
+      box-shadow: none;
+      transition: background .14s, border-color .14s, transform .1s, box-shadow .14s;
     }
 
-    .game-card:hover {
-      background: rgba(255,255,255,.09);
-      border-color: rgba(255,255,255,.22);
+    .game-card:hover:not(:disabled) {
+      background: var(--surface2);
+      border-color: var(--border-hi) !important;
       transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,.35) !important;
     }
 
-    .game-card:active { transform: scale(.98); }
+    .game-card:active:not(:disabled) { transform: scale(.98); box-shadow: none !important; }
 
-    .game-card .gc-icon {
-      font-size: 2.4rem;
-      flex-shrink: 0;
-      line-height: 1;
+    .gc-emoji { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+    .gc-text  { flex: 1; }
+    .gc-name  { font-size: .95rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .gc-desc  { font-size: .78rem; color: var(--muted); line-height: 1.4; }
+
+    .gc-badge {
+      font-size: .68rem; font-weight: 700; letter-spacing: .05em;
+      padding: 4px 9px; border-radius: 999px; flex-shrink: 0;
     }
 
-    .game-card .gc-info { flex: 1; }
+    .badge-4 { background: rgba(59,130,246,.13); color: var(--accent); border: 1px solid rgba(59,130,246,.22); }
+    .badge-2 { background: rgba(34,197,94,.11);  color: var(--green);  border: 1px solid rgba(34,197,94,.2); }
 
-    .game-card .gc-name {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
-
-    .game-card .gc-desc {
-      font-size: .84rem;
-      color: #94a3b8;
-    }
-
-    .game-card .gc-arrow {
-      font-size: 1.2rem;
-      color: #64748b;
-    }
-
-    /* ─── Game Controller Screen ─── */
+    /* ── Control screen ── */
     #gameControlScreen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      flex: 1;
+      display: none; flex-direction: column;
+      align-items: center; flex: 1; gap: 0;
     }
 
-    .gc-active-name {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #c084fc;
-      letter-spacing: .06em;
-      text-transform: uppercase;
+    .ctrl-name {
+      font-family: 'Space Mono', monospace;
+      font-size: .85rem; font-weight: 700;
+      color: var(--purple); letter-spacing: .1em;
+      text-transform: uppercase; text-align: center; margin-bottom: 5px;
     }
 
     .ctrl-hint {
-      font-size: .82rem;
-      color: #4a5568;
-      text-align: center;
+      font-size: .76rem; color: var(--muted);
+      text-align: center; margin-bottom: 22px;
     }
 
-    .big-btns {
+    /* 2-btn layout */
+    .ctrl-2 {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; width: 100%; flex: 1; max-height: 300px;
+    }
+
+    /* 4-btn D-pad */
+    .ctrl-4 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      width: 100%;
-      flex: 1;
-      max-height: 280px;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 10px;
+      width: 100%; max-width: 310px;
+      flex: 1; max-height: 290px;
     }
 
-    .big-btn {
-      border-radius: 24px;
-      border: 2px solid rgba(255,255,255,.12);
-      font-size: 3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 6px;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
-      transition: transform .08s, filter .08s;
-      touch-action: manipulation;
-      height: 100%;
-      min-height: 140px;
+    /* Game buttons */
+    .gbtn {
+      border-radius: 18px !important;
+      border: 1.5px solid rgba(255,255,255,.09) !important;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 5px;
+      cursor: pointer; touch-action: manipulation;
+      height: 100%; min-height: 100px;
+      font-size: 1.7rem;
+      box-shadow: none !important;
+      transition: transform .08s, filter .08s !important;
+      -webkit-user-select: none; user-select: none;
+      background: var(--surface2); color: var(--muted);
     }
 
-    .big-btn span.label {
-      font-size: .95rem;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
+    .gbtn .glbl {
+      font-size: .74rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
     }
 
-    #btnLeft {
-      background: linear-gradient(160deg, #1e3a8a, #1e40af);
-      box-shadow: 0 12px 40px rgba(30,64,175,.35);
+    .gbtn:active { transform: scale(.9) !important; filter: brightness(1.25); }
+
+    .gb-blue   { background: rgba(59,130,246,.13)  !important; color: #93c5fd !important; border-color: rgba(59,130,246,.2) !important; }
+    .gb-purple { background: rgba(168,85,247,.13)  !important; color: #d8b4fe !important; border-color: rgba(168,85,247,.2) !important; }
+    .gb-green  { background: rgba(34,197,94,.11)   !important; color: #86efac !important; border-color: rgba(34,197,94,.18) !important; }
+    .gb-amber  { background: rgba(245,158,11,.11)  !important; color: #fcd34d !important; border-color: rgba(245,158,11,.18) !important; }
+
+    .dpad-empty { background: transparent !important; border: none !important; pointer-events: none; }
+
+    .back-btn {
+      margin-top: 18px; width: 100%;
+      background: var(--surface2) !important; border-color: var(--border) !important;
+      color: var(--muted) !important; border-radius: 10px !important;
+      padding: 12px !important; font-size: .83rem !important;
+      box-shadow: none !important;
+    }
+    .back-btn:hover:not(:disabled) {
+      background: var(--surface3) !important; color: var(--text) !important;
+      border-color: var(--border-hi) !important;
     }
 
-    #btnRight {
-      background: linear-gradient(160deg, #7e22ce, #9333ea);
-      box-shadow: 0 12px 40px rgba(147,51,234,.35);
-    }
-
-    .big-btn:active { transform: scale(.94); filter: brightness(1.15); }
-
-    .back-from-ctrl {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-      color: #94a3b8;
-      font-size: .9rem;
-      border-radius: 14px;
-      padding: 12px;
-      cursor: pointer;
-      width: 100%;
-      font-weight: 600;
-      box-shadow: none;
-    }
-
-    .back-from-ctrl:hover { background: rgba(255,255,255,.09); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <h1>NexRobo Bluetooth Controller</h1>
-      <div id="connBadge" class="pill disconnected">Disconnected</div>
-    </div>
 
-    <div class="row">
-      <div class="card">
-        <label for="password">Password</label>
-        <input id="password" type="text" value="nexrobo" autocomplete="off" />
-      </div>
-      <div class="card">
-        <label>Bluetooth</label>
-        <button id="connectBtn">Connect</button>
-        <div style="height:10px"></div>
-        <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
+<div class="page">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <div>
+        <div class="brand-name">NexRobo</div>
+        <div class="brand-sub">Bluetooth Controller</div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="group-title">Mode</div>
-      <div class="grid">
-        <button id="autoBtn" class="good" disabled>AUTO</button>
-        <button id="manualBtn" class="secondary" disabled>MANUAL</button>
-        <button id="gameModeBtn" class="game-mode-btn" disabled>🎮 Game Mode</button>
-      </div>
-
-      <div class="group-title">Expressions</div>
-      <div id="expressionGrid" class="grid"></div>
-
-      <div class="group-title">Custom Text</div>
-      <label for="customText">Text</label>
-      <input id="customText" type="text" maxlength="7" placeholder="Up to 7 chars" disabled />
-      <div style="height:10px"></div>
-      <button id="sendTextBtn" class="warn" disabled>Show Text</button>
+    <div id="connBadge" class="status-badge disconnected">
+      <span class="sdot"></span>
+      <span id="connLabel">Disconnected</span>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
-       GAME PANEL (fullscreen overlay)
-  ════════════════════════════════════════════════ -->
-  <div id="gamePanel">
-    <div class="gp-inner">
-
-      <!-- Header -->
-      <div class="gp-header">
-        <div class="gp-title">🎮 Game Mode</div>
-        <button id="closePanelBtn" title="Exit Game Mode">✕</button>
+  <!-- Connection -->
+  <div class="slabel">Connection</div>
+  <div class="card">
+    <div class="connect-grid">
+      <div>
+        <div class="field-label">Password</div>
+        <input id="password" type="text" value="nexrobo" autocomplete="off" spellcheck="false" />
       </div>
-
-      <!-- Game Selection -->
-      <div id="gameSelectScreen">
-        <div class="game-pick-label">Choose a game</div>
-
-        <button class="game-card" data-game="GAME_SNAKE" data-name="🐍 Snake">
-          <div class="gc-icon">🐍</div>
-          <div class="gc-info">
-            <div class="gc-name">Snake</div>
-            <div class="gc-desc">Eat food, grow longer, avoid yourself</div>
-          </div>
-          <div class="gc-arrow">›</div>
-        </button>
-
-        <button class="game-card" data-game="GAME_SPACE" data-name="🚀 Space Shooter">
-          <div class="gc-icon">🚀</div>
-          <div class="gc-info">
-            <div class="gc-name">Space Shooter</div>
-            <div class="gc-desc">Blast falling enemies before they reach you</div>
-          </div>
-          <div class="gc-arrow">›</div>
-        </button>
-
-        <button class="game-card" data-game="GAME_FLAPPY" data-name="🐦 Flappy Bird">
-          <div class="gc-icon">🐦</div>
-          <div class="gc-info">
-            <div class="gc-name">Flappy Bird</div>
-            <div class="gc-desc">Tap to flap through the pipes</div>
-          </div>
-          <div class="gc-arrow">›</div>
-        </button>
+      <div class="btn-row">
+        <button id="connectBtn" class="btn-primary">Connect</button>
+        <button id="disconnectBtn" class="btn-danger" disabled>Disconnect</button>
       </div>
-
-      <!-- Game Controller -->
-      <div id="gameControlScreen">
-        <div class="gc-active-name" id="activeGameLabel">Snake</div>
-        <div class="ctrl-hint">Tap buttons to control the robot's display</div>
-
-        <div class="big-btns">
-          <button class="big-btn" id="btnLeft">
-            <span>◀</span>
-            <span class="label">Left</span>
-          </button>
-          <button class="big-btn" id="btnRight">
-            <span>▶</span>
-            <span class="label">Right</span>
-          </button>
-        </div>
-
-        <button class="back-from-ctrl" id="backToGamesBtn">← Back to game list</button>
-      </div>
-
     </div>
-  </div><!-- /gamePanel -->
+  </div>
 
-  <script>
-    const SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
-    const PASS_UUID    = 'abcd1234-1a2b-3c4d-5e6f-1234567890ab';
-    const CMD_UUID     = 'dcba4321-4b3c-2d1e-f0e9-0987654321ff';
-    const TEXT_UUID    = 'effe1234-4b3c-2d1e-f0e9-0987654321aa';
+  <!-- Mode -->
+  <div class="spacer"></div>
+  <div class="slabel">Mode</div>
+  <div class="card">
+    <div class="mode-row">
+      <button id="autoBtn"     class="btn-success" disabled>⟳ AUTO</button>
+      <button id="manualBtn"   class="btn-ghost"   disabled>✎ MANUAL</button>
+      <button id="gameModeBtn" class="btn-purple"  disabled>🎮 Game Mode</button>
+    </div>
+  </div>
 
-    const EXPRESSIONS = [
-      ['SAD', 'Sadness'],
-      ['ANGER', 'Anger'],
-      ['HAPPY', 'Happiness'],
-      ['PLEADING', 'Pleading'],
-      ['VULNERABLE', 'Vulnerable'],
-      ['DESPAIR', 'Despair'],
-      ['SURPRISE', 'Surprise'],
-      ['DISGUST', 'Disgust'],
-      ['FEAR', 'Fear'],
-      ['GUILTY', 'Guilty'],
-      ['DISAPPOINTED', 'Disappointed'],
-      ['EMBARRASSED', 'Embarrassed'],
-      ['HORRIFIED', 'Horrified'],
-      ['SKEPTICAL', 'Skeptical'],
-      ['ANNOYED', 'Annoyed'],
-      ['CONFUSED', 'Confused'],
-      ['AMAZED', 'Amazed'],
-      ['EXCITED', 'Excited'],
-      ['FURIOUS', 'Furious'],
-      ['SUSPICIOUS', 'Suspicious'],
-      ['REJECTED', 'Rejected'],
-      ['BORED', 'Bored'],
-      ['TIRED', 'Tired'],
-      ['ASLEEP', 'Asleep']
-    ];
+  <!-- Expressions -->
+  <div class="spacer"></div>
+  <div class="slabel">Expressions</div>
+  <div class="card">
+    <div class="expr-grid" id="expressionGrid"></div>
+  </div>
 
-    let device = null, server = null, service = null;
-    let passChar = null, cmdChar = null, textChar = null;
-    let activeMode = 'auto';
-    let activeExpression = '';
-    let textShown = false;
-    let inGameMode = false;
+  <!-- Custom Text -->
+  <div class="spacer"></div>
+  <div class="slabel">Custom Text</div>
+  <div class="card">
+    <div class="field-label">Display text on robot (max 7 chars)</div>
+    <div class="text-row" style="margin-top:8px">
+      <input id="customText" type="text" maxlength="7" placeholder="e.g. Hello" disabled />
+      <button id="sendTextBtn" class="btn-amber" disabled>Show</button>
+    </div>
+  </div>
 
-    const $ = id => document.getElementById(id);
-    const expressionButtons = new Map();
+</div><!-- /page -->
 
-    // ── Connection State ──────────────────────────────────
-    function setConnectionState(connected) {
-      const badge = $('connBadge');
-      badge.textContent = connected ? 'Connected' : 'Disconnected';
-      badge.classList.toggle('connected', connected);
-      badge.classList.toggle('disconnected', !connected);
+
+<!-- GAME PANEL -->
+<div id="gamePanel">
+  <div class="gp-wrap">
+
+    <div class="gp-header">
+      <div>
+        <div class="gp-logo-title">Game Mode</div>
+        <div class="gp-logo-sub">NexRobo Arcade</div>
+      </div>
+      <button id="closePanelBtn" class="gp-close">✕</button>
+    </div>
+
+    <!-- SELECT -->
+    <div id="gameSelectScreen">
+      <div class="pick-label">Choose a game</div>
+
+      <button class="game-card" data-game="GAME_SNAKE"  data-name="🐍 Snake"          data-ctrl="4">
+        <div class="gc-emoji">🐍</div>
+        <div class="gc-text">
+          <div class="gc-name">Snake</div>
+          <div class="gc-desc">Eat food, grow longer — avoid crashing into yourself</div>
+        </div>
+        <span class="gc-badge badge-4">D-PAD</span>
+      </button>
+
+      <button class="game-card" data-game="GAME_SPACE"  data-name="🚀 Space Shooter"  data-ctrl="2">
+        <div class="gc-emoji">🚀</div>
+        <div class="gc-text">
+          <div class="gc-name">Space Shooter</div>
+          <div class="gc-desc">Strafe left &amp; right to blast falling enemies</div>
+        </div>
+        <span class="gc-badge badge-2">2 BTN</span>
+      </button>
+
+      <button class="game-card" data-game="GAME_FLAPPY" data-name="🐦 Flappy Bird"    data-ctrl="2">
+        <div class="gc-emoji">🐦</div>
+        <div class="gc-text">
+          <div class="gc-name">Flappy Bird</div>
+          <div class="gc-desc">Tap either button to flap through the pipes</div>
+        </div>
+        <span class="gc-badge badge-2">2 BTN</span>
+      </button>
+    </div>
+
+    <!-- CONTROL -->
+    <div id="gameControlScreen">
+      <div class="ctrl-name"  id="activeGameLabel">Snake</div>
+      <div class="ctrl-hint"  id="ctrlHint">Use buttons to control the robot</div>
+
+      <!-- 2-button layout (Space Shooter & Flappy Bird) -->
+      <div class="ctrl-2" id="ctrl2">
+        <button class="gbtn gb-blue"   id="btn2Left">  <span>◀</span><span class="glbl">Left</span></button>
+        <button class="gbtn gb-purple" id="btn2Right"> <span>▶</span><span class="glbl">Right</span></button>
+      </div>
+
+      <!-- 4-button D-pad layout (Snake) -->
+      <div class="ctrl-4 hidden" id="ctrl4">
+        <!-- row 1 -->
+        <div class="gbtn dpad-empty"></div>
+        <button class="gbtn gb-green"  id="btnUp">    <span>▲</span><span class="glbl">Up</span></button>
+        <div class="gbtn dpad-empty"></div>
+        <!-- row 2 -->
+        <button class="gbtn gb-blue"   id="btnLeft">  <span>◀</span><span class="glbl">Left</span></button>
+        <div class="gbtn dpad-empty"></div>
+        <button class="gbtn gb-purple" id="btnRight"> <span>▶</span><span class="glbl">Right</span></button>
+        <!-- row 3 -->
+        <div class="gbtn dpad-empty"></div>
+        <button class="gbtn gb-amber"  id="btnDown">  <span>▼</span><span class="glbl">Down</span></button>
+        <div class="gbtn dpad-empty"></div>
+      </div>
+
+      <button class="back-btn" id="backToGamesBtn">← Back to games</button>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+  const SERVICE_UUID = '12345678-1234-1234-1234-123456789abc';
+  const PASS_UUID    = 'abcd1234-1a2b-3c4d-5e6f-1234567890ab';
+  const CMD_UUID     = 'dcba4321-4b3c-2d1e-f0e9-0987654321ff';
+  const TEXT_UUID    = 'effe1234-4b3c-2d1e-f0e9-0987654321aa';
+
+  const EXPRESSIONS = [
+    ['SAD','Sadness'],['ANGER','Anger'],['HAPPY','Happiness'],
+    ['PLEADING','Pleading'],['VULNERABLE','Vulnerable'],['DESPAIR','Despair'],
+    ['SURPRISE','Surprise'],['DISGUST','Disgust'],['FEAR','Fear'],
+    ['GUILTY','Guilty'],['DISAPPOINTED','Disappointed'],['EMBARRASSED','Embarrassed'],
+    ['HORRIFIED','Horrified'],['SKEPTICAL','Skeptical'],['ANNOYED','Annoyed'],
+    ['CONFUSED','Confused'],['AMAZED','Amazed'],['EXCITED','Excited'],
+    ['FURIOUS','Furious'],['SUSPICIOUS','Suspicious'],['REJECTED','Rejected'],
+    ['BORED','Bored'],['TIRED','Tired'],['ASLEEP','Asleep']
+  ];
+
+  let device = null, server = null, service = null;
+  let passChar = null, cmdChar = null, textChar = null;
+  let activeMode = 'auto';
+  let activeExpression = '';
+  let textShown = false;
+  let inGameMode = false;
+
+  const $ = id => document.getElementById(id);
+  const expressionButtons = new Map();
+
+  /* Connection UI */
+  function setConnectionState(connected) {
+    const badge = $('connBadge');
+    $('connLabel').textContent = connected ? 'Connected' : 'Disconnected';
+    badge.classList.toggle('connected', connected);
+    badge.classList.toggle('disconnected', !connected);
+  }
+
+  function setButtons(enabled) {
+    ['disconnectBtn','autoBtn','manualBtn','gameModeBtn','sendTextBtn','password','customText']
+      .forEach(id => $(id).disabled = !enabled);
+    document.querySelectorAll('#expressionGrid button')
+      .forEach(btn => btn.disabled = !enabled);
+  }
+
+  function updateTextButton() {
+    const btn = $('sendTextBtn');
+    btn.textContent = textShown ? 'Remove' : 'Show';
+    btn.classList.toggle('bav-cyan',  textShown);
+    btn.classList.toggle('btn-amber', !textShown);
+  }
+
+  function renderActiveState() {
+    $('autoBtn').classList.toggle('bav-green',   activeMode === 'auto');
+    $('autoBtn').classList.toggle('btn-success', activeMode !== 'auto');
+    $('manualBtn').classList.toggle('bav-amber', activeMode === 'manual');
+    $('manualBtn').classList.toggle('btn-ghost', activeMode !== 'manual');
+    for (const [cmd, btn] of expressionButtons.entries()) {
+      btn.classList.toggle('bav-expr', activeExpression === cmd);
     }
+    updateTextButton();
+  }
 
-    function setButtons(enabled) {
-      $('disconnectBtn').disabled = !enabled;
-      $('autoBtn').disabled       = !enabled;
-      $('manualBtn').disabled     = !enabled;
-      $('gameModeBtn').disabled   = !enabled;
-      $('sendTextBtn').disabled   = !enabled;
-      $('password').disabled      = !enabled;
-      $('customText').disabled    = !enabled;
-      document.querySelectorAll('#expressionGrid button')
-        .forEach(btn => btn.disabled = !enabled);
+  /* BLE write */
+  async function writeText(ch, text) {
+    const data = new TextEncoder().encode(text);
+    try {
+      if (ch.writeValueWithoutResponse) { await ch.writeValueWithoutResponse(data); return; }
+    } catch (_) {}
+    await ch.writeValue(data);
+  }
+
+  async function clearTextMode() {
+    if (!textShown || !textChar) return;
+    try { await writeText(textChar, 'CLEAR'); } catch (e) {}
+    textShown = false; updateTextButton();
+  }
+
+  async function sendCommand(cmd) {
+    if (!cmdChar) return;
+    try {
+      await clearTextMode();
+      await writeText(cmdChar, cmd);
+      if      (cmd === 'AUTO')   { activeMode = 'auto';   activeExpression = ''; }
+      else if (cmd === 'MANUAL') { activeMode = 'manual'; activeExpression = ''; }
+      else                       { activeMode = 'manual'; activeExpression = cmd; }
+      renderActiveState();
+    } catch (e) { console.error(e); }
+  }
+
+  async function sendCustomText() {
+    if (!textChar) return;
+    const val = $('customText').value.trim();
+    if (textShown) { await clearTextMode(); return; }
+    if (val.length < 1 || val.length > 7) return;
+    try {
+      await writeText(textChar, val);
+      textShown = true; activeMode = 'manual'; activeExpression = '';
+      renderActiveState();
+    } catch (e) { console.error(e); }
+  }
+
+  /* BLE connect */
+  async function connect() {
+    try {
+      device = await navigator.bluetooth.requestDevice({
+        filters: [{ services: [SERVICE_UUID] }],
+        optionalServices: [SERVICE_UUID]
+      });
+      device.addEventListener('gattserverdisconnected', onDisconnected);
+      server   = await device.gatt.connect();
+      service  = await server.getPrimaryService(SERVICE_UUID);
+      passChar = await service.getCharacteristic(PASS_UUID);
+      cmdChar  = await service.getCharacteristic(CMD_UUID);
+      textChar = await service.getCharacteristic(TEXT_UUID);
+      await writeText(passChar, $('password').value.trim() || 'nexrobo');
+      setButtons(true); setConnectionState(true);
+      activeMode = 'auto'; activeExpression = ''; textShown = false;
+      renderActiveState();
+      await sendCommand('AUTO');
+    } catch (e) {
+      console.error(e); setButtons(false); setConnectionState(false);
     }
+  }
 
-    function updateTextButton() {
-      const btn = $('sendTextBtn');
-      btn.textContent = textShown ? 'Remove Text' : 'Show Text';
-      btn.classList.toggle('active', textShown);
-      btn.classList.toggle('text', textShown);
+  function onDisconnected() {
+    setButtons(false); setConnectionState(false);
+    activeMode = 'auto'; activeExpression = ''; textShown = false;
+    inGameMode = false; closeGamePanel(false); renderActiveState();
+  }
+
+  function disconnect() {
+    if (device && device.gatt.connected) device.gatt.disconnect();
+  }
+
+  /* Game panel */
+  function openGamePanel() {
+    if (textShown) return;
+    $('gamePanel').classList.add('open');
+    showSelectScreen(); inGameMode = true;
+  }
+
+  async function closeGamePanel(sendExit = true) {
+    $('gamePanel').classList.remove('open');
+    showSelectScreen(); inGameMode = false;
+    if (sendExit && cmdChar) {
+      try { await writeText(cmdChar, 'GAME_EXIT'); } catch (_) {}
     }
+    activeMode = 'auto'; activeExpression = ''; renderActiveState();
+  }
 
-    function renderActiveState() {
-      $('autoBtn').classList.toggle('active', activeMode === 'auto');
-      $('autoBtn').classList.toggle('mode-auto', activeMode === 'auto');
-      $('manualBtn').classList.toggle('active', activeMode === 'manual');
-      $('manualBtn').classList.toggle('mode-manual', activeMode === 'manual');
+  function showSelectScreen() {
+    $('gameSelectScreen').style.display  = 'flex';
+    $('gameControlScreen').style.display = 'none';
+  }
 
-      for (const [cmd, btn] of expressionButtons.entries()) {
-        const on = activeExpression === cmd;
-        btn.classList.toggle('active', on);
-        btn.classList.toggle('expr', on);
-      }
-      updateTextButton();
-    }
+  async function selectGame(cmd, name, ctrl) {
+    $('activeGameLabel').textContent = name;
+    $('gameSelectScreen').style.display  = 'none';
+    $('gameControlScreen').style.display = 'flex';
 
-    // ── BLE Write ─────────────────────────────────────────
-    async function writeText(characteristic, text) {
-      const data = new TextEncoder().encode(text);
-      try {
-        if (characteristic.writeValueWithoutResponse) {
-          await characteristic.writeValueWithoutResponse(data);
-          return;
-        }
-      } catch (e) {}
-      await characteristic.writeValue(data);
-    }
+    const is4 = ctrl === '4';
+    $('ctrl4').classList.toggle('hidden', !is4);
+    $('ctrl2').classList.toggle('hidden',  is4);
 
-    async function clearTextMode() {
-      if (!textShown || !textChar) return;
-      try { await writeText(textChar, 'CLEAR'); } catch (err) { console.error(err); }
-      textShown = false;
-      updateTextButton();
-    }
+    if (cmd === 'GAME_SNAKE')  $('ctrlHint').textContent = 'Use the D-pad to steer the snake';
+    if (cmd === 'GAME_SPACE')  $('ctrlHint').textContent = 'Move left & right to aim your ship';
+    if (cmd === 'GAME_FLAPPY') $('ctrlHint').textContent = 'Tap either button to flap the bird';
 
-    async function sendCommand(cmd) {
+    if (cmdChar) { try { await writeText(cmdChar, cmd); } catch (e) { console.error(e); } }
+  }
+
+  async function backToGameList() {
+    if (cmdChar) { try { await writeText(cmdChar, 'GAME_EXIT'); } catch (_) {} }
+    showSelectScreen();
+  }
+
+  /* Fast-repeat game button */
+  function setupGbtn(btn, cmd) {
+    let iv = null;
+    async function fire() {
       if (!cmdChar) return;
-      try {
-        await clearTextMode();
-        await writeText(cmdChar, cmd);
-
-        if (cmd === 'AUTO') {
-          activeMode = 'auto'; activeExpression = '';
-        } else if (cmd === 'MANUAL') {
-          activeMode = 'manual'; activeExpression = '';
-        } else {
-          activeMode = 'manual'; activeExpression = cmd;
-        }
-        renderActiveState();
-      } catch (err) { console.error(err); }
+      try { await writeText(cmdChar, cmd); } catch (_) {}
     }
+    btn.addEventListener('touchstart', e => {
+      e.preventDefault(); fire(); iv = setInterval(fire, 75);
+    }, { passive: false });
+    btn.addEventListener('touchend',   e => { e.preventDefault(); clearInterval(iv); iv = null; }, { passive: false });
+    btn.addEventListener('touchcancel',  () => { clearInterval(iv); iv = null; });
+    btn.addEventListener('mousedown',    () => { fire(); iv = setInterval(fire, 75); });
+    btn.addEventListener('mouseup',      () => { clearInterval(iv); iv = null; });
+    btn.addEventListener('mouseleave',   () => { clearInterval(iv); iv = null; });
+  }
 
-    async function sendCustomText() {
-      if (!textChar) return;
-      const value = $('customText').value.trim();
-      if (textShown) { await clearTextMode(); return; }
-      if (value.length < 1 || value.length > 7) return;
-      try {
-        await writeText(textChar, value);
-        textShown = true;
-        activeMode = 'manual'; activeExpression = '';
-        renderActiveState();
-      } catch (err) { console.error(err); }
-    }
+  /* Wire-up */
+  $('connectBtn').addEventListener('click', connect);
+  $('disconnectBtn').addEventListener('click', disconnect);
+  $('autoBtn').addEventListener('click',   () => sendCommand('AUTO'));
+  $('manualBtn').addEventListener('click', () => sendCommand('MANUAL'));
+  $('sendTextBtn').addEventListener('click', sendCustomText);
+  $('customText').addEventListener('keydown', e => { if (e.key === 'Enter') sendCustomText(); });
+  $('gameModeBtn').addEventListener('click', openGamePanel);
+  $('closePanelBtn').addEventListener('click', () => closeGamePanel(true));
+  $('backToGamesBtn').addEventListener('click', backToGameList);
 
-    // ── BLE Connect ───────────────────────────────────────
-    async function connect() {
-      try {
-        device = await navigator.bluetooth.requestDevice({
-          filters: [{ services: [SERVICE_UUID] }],
-          optionalServices: [SERVICE_UUID]
-        });
-        device.addEventListener('gattserverdisconnected', onDisconnected);
+  document.querySelectorAll('.game-card').forEach(card => {
+    card.addEventListener('click', () =>
+      selectGame(card.dataset.game, card.dataset.name, card.dataset.ctrl));
+  });
 
-        server    = await device.gatt.connect();
-        service   = await server.getPrimaryService(SERVICE_UUID);
-        passChar  = await service.getCharacteristic(PASS_UUID);
-        cmdChar   = await service.getCharacteristic(CMD_UUID);
-        textChar  = await service.getCharacteristic(TEXT_UUID);
+  // Wire game buttons (2-btn)
+  setupGbtn($('btn2Left'),  'BTN_LEFT');
+  setupGbtn($('btn2Right'), 'BTN_RIGHT');
+  // Wire D-pad buttons (4-btn)
+  setupGbtn($('btnUp'),    'BTN_UP');
+  setupGbtn($('btnDown'),  'BTN_DOWN');
+  setupGbtn($('btnLeft'),  'BTN_LEFT');
+  setupGbtn($('btnRight'), 'BTN_RIGHT');
 
-        const pass = $('password').value.trim() || 'nexrobo';
-        await writeText(passChar, pass);
-
-        setButtons(true);
-        setConnectionState(true);
-        activeMode = 'auto'; activeExpression = '';
-        textShown = false;
-        renderActiveState();
-        await sendCommand('AUTO');
-      } catch (err) {
-        console.error(err);
-        setButtons(false);
-        setConnectionState(false);
-      }
-    }
-
-    function onDisconnected() {
-      setButtons(false);
-      setConnectionState(false);
-      activeMode = 'auto'; activeExpression = '';
-      textShown = false;
-      inGameMode = false;
-      closeGamePanel(false); // close without sending BLE (already disconnected)
-      renderActiveState();
-    }
-
-    function disconnect() {
-      if (device && device.gatt.connected) device.gatt.disconnect();
-    }
-
-    // ── GAME PANEL ────────────────────────────────────────
-    let currentGameCmd  = '';
-    let currentGameName = '';
-
-    function openGamePanel() {
-      if (showingText) return; // respect: text mode blocks game start
-      $('gamePanel').classList.add('open');
-      showSelectScreen();
-      inGameMode = true;
-    }
-
-    async function closeGamePanel(sendExit = true) {
-      $('gamePanel').classList.remove('open');
-      showSelectScreen();
-      inGameMode = false;
-      if (sendExit && cmdChar) {
-        try { await writeText(cmdChar, 'GAME_EXIT'); } catch (e) {}
-      }
-      // Restore normal state
-      activeMode = 'auto'; activeExpression = '';
-      renderActiveState();
-    }
-
-    function showSelectScreen() {
-      $('gameSelectScreen').style.display   = 'flex';
-      $('gameControlScreen').style.display  = 'none';
-      currentGameCmd  = '';
-      currentGameName = '';
-    }
-
-    async function selectGame(cmd, name) {
-      currentGameCmd  = cmd;
-      currentGameName = name;
-      $('activeGameLabel').textContent = name;
-      $('gameSelectScreen').style.display  = 'none';
-      $('gameControlScreen').style.display = 'flex';
-
-      // Send BLE game command
-      if (cmdChar) {
-        try { await writeText(cmdChar, cmd); } catch (e) { console.error(e); }
-      }
-    }
-
-    async function backToGameList() {
-      // Exit current game, go back to selection (stay in game panel)
-      if (cmdChar) {
-        try { await writeText(cmdChar, 'GAME_EXIT'); } catch (e) {}
-      }
-      showSelectScreen();
-    }
-
-    // ── Control buttons — fast, reliable ─────────────────
-    function setupControlButton(btn, cmd) {
-      let interval = null;
-
-      async function fire() {
-        if (!cmdChar) return;
-        try { await writeText(cmdChar, cmd); } catch (e) {}
-      }
-
-      // Touch events for mobile (most important)
-      btn.addEventListener('touchstart', e => {
-        e.preventDefault();
-        fire();
-        interval = setInterval(fire, 80);
-      }, { passive: false });
-
-      btn.addEventListener('touchend', e => {
-        e.preventDefault();
-        clearInterval(interval);
-        interval = null;
-      }, { passive: false });
-
-      // Mouse events for desktop
-      btn.addEventListener('mousedown', () => {
-        fire();
-        interval = setInterval(fire, 80);
-      });
-
-      btn.addEventListener('mouseup', () => {
-        clearInterval(interval);
-        interval = null;
-      });
-
-      btn.addEventListener('mouseleave', () => {
-        clearInterval(interval);
-        interval = null;
-      });
-    }
-
-    // ── Wire everything up ────────────────────────────────
-    $('connectBtn').addEventListener('click', connect);
-    $('disconnectBtn').addEventListener('click', disconnect);
-    $('autoBtn').addEventListener('click', () => sendCommand('AUTO'));
-    $('manualBtn').addEventListener('click', () => sendCommand('MANUAL'));
-    $('sendTextBtn').addEventListener('click', sendCustomText);
-    $('customText').addEventListener('keydown', e => {
-      if (e.key === 'Enter') sendCustomText();
+  // Expression buttons
+  const exprGrid = $('expressionGrid');
+  EXPRESSIONS.forEach(([cmd, label]) => {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.disabled = true;
+    btn.addEventListener('click', async () => {
+      if (inGameMode) await closeGamePanel(true);
+      await sendCommand(cmd);
     });
+    expressionButtons.set(cmd, btn);
+    exprGrid.appendChild(btn);
+  });
 
-    // Game mode button
-    $('gameModeBtn').addEventListener('click', openGamePanel);
-
-    // Close panel button
-    $('closePanelBtn').addEventListener('click', () => closeGamePanel(true));
-
-    // Game cards
-    document.querySelectorAll('.game-card').forEach(card => {
-      card.addEventListener('click', () => {
-        selectGame(card.dataset.game, card.dataset.name);
-      });
-    });
-
-    // Back button in controller
-    $('backToGamesBtn').addEventListener('click', backToGameList);
-
-    // Control buttons
-    setupControlButton($('btnLeft'),  'BTN_LEFT');
-    setupControlButton($('btnRight'), 'BTN_RIGHT');
-
-    // Expression buttons
-    const grid = $('expressionGrid');
-    EXPRESSIONS.forEach(([cmd, label]) => {
-      const btn = document.createElement('button');
-      btn.textContent = label;
-      btn.disabled = true;
-      btn.addEventListener('click', async () => {
-        // Exit game if active
-        if (inGameMode) await closeGamePanel(true);
-        await sendCommand(cmd);
-      });
-      expressionButtons.set(cmd, btn);
-      grid.appendChild(btn);
-    });
-
-    // Init
-    let showingText = false; // local mirror for text guard
-    setButtons(false);
-    setConnectionState(false);
-    renderActiveState();
-  </script>
+  setButtons(false);
+  setConnectionState(false);
+  renderActiveState();
+</script>
 </body>
 </html>
