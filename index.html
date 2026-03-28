@@ -5,174 +5,180 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NexRobo Bluetooth Controller</title>
   <style>
-    :root {
-      --bg: #0b1020;
-      --card: #121a33;
-      --text: #eef2ff;
-      --muted: #aab4d6;
-      --accent2: #7cffc4;
-      --border: rgba(255,255,255,.12);
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --text:#eef2ff;
+      --muted:#aab4d6;
+      --accent2:#7cffc4;
+      --border:rgba(255,255,255,.12);
+      --active:#ffd36e;
+      --active2:#8cf7c5;
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(circle at top, #182447 0%, var(--bg) 60%);
-      color: var(--text);
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at top,#182447 0%,var(--bg) 60%);
+      color:var(--text);
     }
-
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 16px;
+    .wrap{max-width:980px;margin:0 auto;padding:16px}
+    .hero{
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
     }
-
-    .hero {
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
+    h1{margin:0;font-size:1.5rem}
+    .pill{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--muted);
+      font-size:.92rem;
+      min-width:120px;
+      text-align:center;
     }
-
-    h1 { margin: 0; font-size: 1.5rem; }
-
-    .pill {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      color: var(--muted);
-      font-size: .92rem;
-      min-width: 120px;
-      text-align: center;
+    .pill.connected{
+      color:#071b12;
+      background:linear-gradient(180deg,#8cf7c5,#32c887);
+      border-color:rgba(255,255,255,.15);
+      font-weight:700;
     }
-
-    .pill.connected {
-      color: #071b12;
-      background: linear-gradient(180deg, #8cf7c5, #32c887);
-      border-color: rgba(255,255,255,.15);
-      font-weight: 700;
+    .pill.disconnected{
+      color:#2c1010;
+      background:linear-gradient(180deg,#ffb0b0,#ff7d7d);
+      border-color:rgba(255,255,255,.15);
+      font-weight:700;
     }
-
-    .pill.disconnected {
-      color: #2c1010;
-      background: linear-gradient(180deg, #ffb0b0, #ff7d7d);
-      border-color: rgba(255,255,255,.15);
-      font-weight: 700;
+    .row{
+      display:grid;
+      gap:10px;
+      grid-template-columns:1fr 1fr;
+      margin:12px 0;
     }
-
-    .row {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: 1fr 1fr;
-      margin: 12px 0;
+    @media (max-width:640px){ .row{grid-template-columns:1fr} }
+    .card{
+      background:rgba(18,26,51,.92);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
     }
-
-    @media (max-width: 640px) {
-      .row { grid-template-columns: 1fr; }
+    label{
+      display:block;
+      font-size:.92rem;
+      color:var(--muted);
+      margin-bottom:6px;
     }
-
-    .card {
-      background: rgba(18,26,51,.92);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px;
+    input,button{
+      width:100%;
+      border:0;
+      outline:none;
+      border-radius:14px;
+      padding:14px 14px;
+      font-size:1rem;
     }
-
-    label {
-      display: block;
-      font-size: .92rem;
-      color: var(--muted);
-      margin-bottom: 6px;
+    input{
+      background:#0a1126;
+      color:var(--text);
+      border:1px solid var(--border);
     }
-
-    input, button {
-      width: 100%;
-      border: 0;
-      outline: none;
-      border-radius: 14px;
-      padding: 14px 14px;
-      font-size: 1rem;
+    button{
+      background:linear-gradient(180deg,#74a7ff,#4d7dff);
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(77,125,255,.25);
+      transition:transform .12s ease, filter .12s ease, background .12s ease;
     }
-
-    input {
-      background: #0a1126;
-      color: var(--text);
-      border: 1px solid var(--border);
+    button:active{transform:scale(.98)}
+    button.secondary{
+      background:linear-gradient(180deg,#2b355b,#1a2242);
+      box-shadow:none;
+      border:1px solid var(--border);
     }
-
-    button {
-      background: linear-gradient(180deg, #74a7ff, #4d7dff);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(77,125,255,.25);
-      transition: transform .12s ease, filter .12s ease, background .12s ease;
+    button.good{background:linear-gradient(180deg,#58d9a1,#2aa66f)}
+    button.warn{background:linear-gradient(180deg,#ff9a7d,#ff6c6c)}
+    button.active{
+      box-shadow:0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
+      filter:brightness(1.08);
+      border:1px solid rgba(255,255,255,.18);
     }
-
-    button:active { transform: scale(.98); }
-
-    button.secondary {
-      background: linear-gradient(180deg, #2b355b, #1a2242);
-      box-shadow: none;
-      border: 1px solid var(--border);
+    button.active.mode-auto{
+      background:linear-gradient(180deg,#7cffc4,#2fbf7e);
+      color:#062013;
     }
-
-    button.good { background: linear-gradient(180deg, #58d9a1, #2aa66f); }
-    button.warn { background: linear-gradient(180deg, #ff9a7d, #ff6c6c); }
-
-    button.active {
-      box-shadow: 0 0 0 2px rgba(255,255,255,.18) inset, 0 10px 20px rgba(0,0,0,.18);
-      filter: brightness(1.08);
-      border: 1px solid rgba(255,255,255,.18);
+    button.active.mode-manual{
+      background:linear-gradient(180deg,#ffd36e,#ffb93d);
+      color:#231700;
     }
-
-    button.active.mode-auto {
-      background: linear-gradient(180deg, #7cffc4, #2fbf7e);
-      color: #062013;
+    button.active.expr{
+      background:linear-gradient(180deg,#ffbf6e,#ff8f3d);
+      color:#231700;
     }
-
-    button.active.mode-manual {
-      background: linear-gradient(180deg, #ffd36e, #ffb93d);
-      color: #231700;
+    button.active.text{
+      background:linear-gradient(180deg,#8fe0ff,#5cb5ff);
+      color:#062033;
     }
-
-    button.active.expr {
-      background: linear-gradient(180deg, #ffbf6e, #ff8f3d);
-      color: #231700;
+    button.active.game{
+      background:linear-gradient(180deg,#b98fff,#8b5dff);
+      color:#140d2d;
     }
-
-    button.active.text {
-      background: linear-gradient(180deg, #8fe0ff, #5cb5ff);
-      color: #062033;
+    button:disabled{
+      opacity:.5;
+      cursor:not-allowed;
     }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
+    .grid{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      margin-top:12px;
     }
-
-    .grid {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      margin-top: 12px;
+    .group-title{
+      margin:16px 0 8px;
+      font-size:1rem;
+      color:var(--accent2);
+      font-weight:700;
     }
-
-    .group-title {
-      margin: 16px 0 8px;
-      font-size: 1rem;
-      color: var(--accent2);
-      font-weight: 700;
+    .hidden{display:none}
+    .game-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .game-title{
+      font-size:1.1rem;
+      font-weight:700;
+      color:var(--text);
+      margin:0;
+    }
+    .controller{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    .dpad{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      max-width:280px;
+    }
+    .dpad .spacer{visibility:hidden}
+    .game-options{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      margin-top:12px;
     }
   </style>
 </head>
@@ -205,6 +211,25 @@
 
       <div class="group-title">Expressions</div>
       <div id="expressionGrid" class="grid"></div>
+
+      <div class="group-title">Games</div>
+      <button id="openGameBtn" class="secondary" disabled>Games</button>
+
+      <div id="gamePanel" class="card hidden" style="margin-top:12px;">
+        <div class="game-head">
+          <div>
+            <div class="game-title">You vs NexRobo</div>
+            <div id="gameStateLine" style="color:var(--muted); font-size:.9rem; margin-top:4px;">Choose a game</div>
+          </div>
+          <button id="closeGameBtn" class="secondary" style="max-width:140px;">Close</button>
+        </div>
+
+        <div style="height:10px"></div>
+        <button id="playGameBtn" class="good">Play</button>
+
+        <div id="gameOptions" class="game-options hidden"></div>
+        <div id="controllerArea" class="controller hidden"></div>
+      </div>
 
       <div class="group-title">Custom Text</div>
       <label for="customText">Text</label>
@@ -247,6 +272,12 @@
       ['ASLEEP', 'Asleep']
     ];
 
+    const GAME_LIST = [
+      ['GAME_SNAKE', 'Snake', 'snake'],
+      ['GAME_SPACE', 'Space Shooter', 'space'],
+      ['GAME_FLAPPY', 'Flappy Bird', 'flappy']
+    ];
+
     let device = null;
     let server = null;
     let service = null;
@@ -257,9 +288,13 @@
     let activeMode = 'auto';
     let activeExpression = '';
     let textShown = false;
+    let gameMenuOpen = false;
+    let gameOptionsOpen = false;
+    let selectedGame = '';
 
     const $ = (id) => document.getElementById(id);
     const expressionButtons = new Map();
+    const gameButtons = new Map();
 
     function setConnectionState(connected) {
       const badge = $('connBadge');
@@ -275,7 +310,10 @@
       $('sendTextBtn').disabled = !enabled;
       $('password').disabled = !enabled;
       $('customText').disabled = !enabled;
+      $('openGameBtn').disabled = !enabled;
       document.querySelectorAll('#expressionGrid button').forEach(btn => btn.disabled = !enabled);
+      document.querySelectorAll('#gameOptions button').forEach(btn => btn.disabled = !enabled);
+      document.querySelectorAll('#controllerArea button').forEach(btn => btn.disabled = !enabled);
     }
 
     function updateTextButton() {
@@ -301,6 +339,99 @@
       updateTextButton();
     }
 
+    function renderGameUI() {
+      $('gamePanel').classList.toggle('hidden', !gameMenuOpen);
+      $('gameOptions').classList.toggle('hidden', !gameOptionsOpen);
+      $('controllerArea').classList.toggle('hidden', !selectedGame);
+
+      $('gameStateLine').textContent = selectedGame
+        ? `Selected: ${selectedGame}`
+        : 'Choose a game';
+
+      for (const [key, btn] of gameButtons.entries()) {
+        btn.classList.toggle('active', selectedGame === key);
+        btn.classList.toggle('game', selectedGame === key);
+      }
+
+      buildController();
+    }
+
+    function buildController() {
+      const area = $('controllerArea');
+      area.innerHTML = '';
+
+      if (!selectedGame) return;
+
+      if (selectedGame === 'snake') {
+        area.appendChild(makePadButton('↑', () => sendGameControl('UP')));
+        area.appendChild(makeSnakeRow());
+        area.appendChild(makeBottomRow('RESET', () => sendGameControl('RESET'), 'EXIT', () => exitGame()));
+      } else if (selectedGame === 'space') {
+        area.appendChild(makeSpaceRow());
+        area.appendChild(makeBottomRow('RESET', () => sendGameControl('RESET'), 'EXIT', () => exitGame()));
+      } else if (selectedGame === 'flappy') {
+        area.appendChild(makeSingleActionRow());
+        area.appendChild(makeBottomRow('RESET', () => sendGameControl('RESET'), 'EXIT', () => exitGame()));
+      }
+    }
+
+    function makeBtn(text, onClick, cls = '') {
+      const b = document.createElement('button');
+      b.textContent = text;
+      if (cls) b.className = cls;
+      b.addEventListener('click', onClick);
+      return b;
+    }
+
+    function makePadButton(text, onClick) {
+      return makeBtn(text, onClick);
+    }
+
+    function makeSnakeRow() {
+      const wrap = document.createElement('div');
+      wrap.className = 'dpad';
+
+      const up = makeBtn(' ', () => {}, 'spacer');
+      const left = makeBtn('←', () => sendGameControl('LEFT'));
+      const right = makeBtn('→', () => sendGameControl('RIGHT'));
+      const down = makeBtn('↓', () => sendGameControl('DOWN'));
+      const mid = makeBtn('JUMP', () => sendGameControl('JUMP'));
+
+      wrap.appendChild(up);
+      wrap.appendChild(left);
+      wrap.appendChild(right);
+      wrap.appendChild(down);
+      wrap.appendChild(mid);
+      wrap.appendChild(makeBtn(' ', () => {}, 'spacer'));
+      return wrap;
+    }
+
+    function makeSpaceRow() {
+      const wrap = document.createElement('div');
+      wrap.className = 'grid';
+
+      wrap.appendChild(makeBtn('←', () => sendGameControl('LEFT')));
+      wrap.appendChild(makeBtn('FIRE', () => sendGameControl('FIRE')));
+      wrap.appendChild(makeBtn('→', () => sendGameControl('RIGHT')));
+      return wrap;
+    }
+
+    function makeSingleActionRow() {
+      const wrap = document.createElement('div');
+      wrap.className = 'grid';
+
+      wrap.appendChild(makeBtn('JUMP', () => sendGameControl('JUMP'), 'good'));
+      return wrap;
+    }
+
+    function makeBottomRow(leftText, leftFn, rightText, rightFn) {
+      const wrap = document.createElement('div');
+      wrap.className = 'grid';
+      wrap.appendChild(makeBtn(leftText, leftFn, 'secondary'));
+      wrap.appendChild(makeBtn(rightText, rightFn, 'warn'));
+      return wrap;
+    }
+
     async function writeText(characteristic, text) {
       const data = new TextEncoder().encode(text);
       try {
@@ -312,61 +443,82 @@
       await characteristic.writeValue(data);
     }
 
-    async function clearTextMode() {
+    async function sendRawCommand(cmd) {
+      if (!cmdChar) return;
+      await writeText(cmdChar, cmd);
+    }
+
+    async function clearTextIfShown() {
       if (!textShown || !textChar) return;
-      try {
-        await writeText(textChar, 'CLEAR');
-      } catch (err) {
-        console.error(err);
-      }
+      await writeText(textChar, 'CLEAR');
       textShown = false;
       updateTextButton();
     }
 
-    async function sendCommand(cmd) {
-      if (!cmdChar) return;
-      try {
-        await clearTextMode();
-        await writeText(cmdChar, cmd);
-
-        if (cmd === 'AUTO') {
-          activeMode = 'auto';
-          activeExpression = '';
-        } else if (cmd === 'MANUAL') {
-          activeMode = 'manual';
-          activeExpression = '';
-        } else {
-          activeMode = 'manual';
-          activeExpression = cmd;
-        }
-
-        renderActiveState();
-      } catch (err) {
-        console.error(err);
+    async function leaveGameIfNeeded() {
+      if (selectedGame) {
+        await sendRawCommand('EXIT');
+        selectedGame = '';
+        renderGameUI();
       }
     }
 
-    async function sendCustomText() {
+    async function sendFaceCommand(cmd) {
+      await clearTextIfShown();
+      await leaveGameIfNeeded();
+      await sendRawCommand(cmd);
+      if (cmd === 'AUTO') {
+        activeMode = 'auto';
+        activeExpression = '';
+      } else if (cmd === 'MANUAL') {
+        activeMode = 'manual';
+        activeExpression = '';
+      } else {
+        activeMode = 'manual';
+        activeExpression = cmd;
+      }
+      renderActiveState();
+    }
+
+    async function sendGameStart(gameCmd, gameKey) {
+      await clearTextIfShown();
+      await sendRawCommand(gameCmd);
+      selectedGame = gameKey;
+      gameMenuOpen = true;
+      gameOptionsOpen = true;
+      renderGameUI();
+    }
+
+    async function sendGameControl(cmd) {
+      await clearTextIfShown();
+      await sendRawCommand(cmd);
+    }
+
+    async function exitGame() {
+      await clearTextIfShown();
+      await sendRawCommand('EXIT');
+      selectedGame = '';
+      renderGameUI();
+    }
+
+    async function toggleCustomText() {
       if (!textChar) return;
 
-      const value = $('customText').value.trim();
-
       if (textShown) {
-        await clearTextMode();
+        await writeText(textChar, 'CLEAR');
+        textShown = false;
+        updateTextButton();
         return;
       }
 
+      const value = $('customText').value.trim();
       if (value.length < 1 || value.length > 7) return;
 
-      try {
-        await writeText(textChar, value);
-        textShown = true;
-        activeMode = 'manual';
-        activeExpression = '';
-        renderActiveState();
-      } catch (err) {
-        console.error(err);
-      }
+      await writeText(textChar, value);
+      textShown = true;
+      activeMode = 'manual';
+      activeExpression = '';
+      renderActiveState();
     }
 
     async function connect() {
@@ -393,9 +545,13 @@
         activeMode = 'auto';
         activeExpression = '';
         textShown = false;
+        selectedGame = '';
+        gameMenuOpen = false;
+        gameOptionsOpen = false;
         renderActiveState();
+        renderGameUI();
 
-        await sendCommand('AUTO');
+        await sendRawCommand('AUTO');
       } catch (err) {
         console.error(err);
         setButtons(false);
@@ -409,7 +565,11 @@
       activeMode = 'auto';
       activeExpression = '';
       textShown = false;
+      selectedGame = '';
+      gameMenuOpen = false;
+      gameOptionsOpen = false;
       renderActiveState();
+      renderGameUI();
     }
 
     function disconnect() {
@@ -421,34 +581,56 @@
     $('connectBtn').addEventListener('click', connect);
     $('disconnectBtn').addEventListener('click', disconnect);
 
-    $('autoBtn').addEventListener('click', async () => {
-      await sendCommand('AUTO');
+    $('autoBtn').addEventListener('click', () => sendFaceCommand('AUTO'));
+    $('manualBtn').addEventListener('click', () => sendFaceCommand('MANUAL'));
+
+    $('sendTextBtn').addEventListener('click', toggleCustomText);
+
+    $('openGameBtn').addEventListener('click', () => {
+      gameMenuOpen = !gameMenuOpen;
+      if (gameMenuOpen) gameOptionsOpen = false;
+      renderGameUI();
     });
 
-    $('manualBtn').addEventListener('click', async () => {
-      await sendCommand('MANUAL');
+    $('closeGameBtn').addEventListener('click', () => {
+      gameMenuOpen = false;
+      gameOptionsOpen = false;
+      selectedGame = '';
+      renderGameUI();
+      sendRawCommand('EXIT');
     });
 
-    $('sendTextBtn').addEventListener('click', sendCustomText);
+    $('playGameBtn').addEventListener('click', () => {
+      gameOptionsOpen = !gameOptionsOpen;
+      renderGameUI();
+    });
+
     $('customText').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendCustomText();
+      if (e.key === 'Enter') toggleCustomText();
     });
 
-    const grid = $('expressionGrid');
     EXPRESSIONS.forEach(([cmd, label]) => {
       const btn = document.createElement('button');
       btn.textContent = label;
       btn.disabled = true;
-      btn.addEventListener('click', async () => {
-        await sendCommand(cmd);
-      });
+      btn.addEventListener('click', () => sendFaceCommand(cmd));
       expressionButtons.set(cmd, btn);
-      grid.appendChild(btn);
+      $('expressionGrid').appendChild(btn);
+    });
+
+    GAME_LIST.forEach(([bleCmd, label, key]) => {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.disabled = true;
+      btn.addEventListener('click', () => sendGameStart(bleCmd, key));
+      gameButtons.set(key, btn);
+      $('gameOptions').appendChild(btn);
     });
 
     setButtons(false);
     setConnectionState(false);
     renderActiveState();
+    renderGameUI();
   </script>
 </body>
 </html>
